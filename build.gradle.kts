@@ -1,19 +1,3 @@
 plugins {
-    id("java")
-}
-
-group = "net.hollowcube"
-version = "1.0-SNAPSHOT"
-
-repositories {
-    mavenCentral()
-}
-
-dependencies {
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.1")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.1")
-}
-
-tasks.getByName<Test>("test") {
-    useJUnitPlatform()
+    id("net.ltgt.errorprone") version "2.0.2" apply false
 }
