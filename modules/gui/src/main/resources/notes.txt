@@ -1,5 +1,0 @@
-Outline
-
-GUI - Highest level class, should contain other classes and extend Minestom's Inventory class for easy display
-
-Section - A subsection of a GUI - must be able to return a list of items that are inside it and store a list of actions when certain slots are clicked
