@@ -76,7 +76,7 @@ public class SinglePageGUI extends Inventory implements GUI {
         for (var entry : sectionMap.entrySet()) {
             int xOffset = entry.getKey() % getMaxWidth();
             int yOffset = entry.getKey() / getMaxWidth();
-            if (x >= xOffset && x < xOffset + entry.getValue().xSize() || y >= yOffset && y < yOffset + entry.getValue().ySize()) {
+            if (x >= xOffset && x < xOffset + entry.getValue().xSize() && y >= yOffset && y < yOffset + entry.getValue().ySize()) {
                 return entry;
             }
         }
