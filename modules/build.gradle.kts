@@ -5,7 +5,7 @@ subprojects {
     apply(plugin = "java")
     apply(plugin = "net.ltgt.errorprone")
 
-    group = "net.hollowcube.libmmo"
+    group = "net.hollowcube.common"
 
     repositories {
         mavenCentral()
