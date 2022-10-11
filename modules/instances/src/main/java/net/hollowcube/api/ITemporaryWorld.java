@@ -26,16 +26,17 @@ public interface ITemporaryWorld {
      */
     ChunkGeneratorType getChunkGeneratorType();
 
-    /**
-     * @return Returns the world's world border size
-     */
-    double getWorldBorderSize();
-
-    /**
-     * Sets a new world border size.
-     * @param worldBorderSize The new world border size.
-     */
-    void setWorldBorderSize(double worldBorderSize);
+// We should probably only include this for map maker worlds which extend normal world types
+//    /**
+//     * @return Returns the world's world border size
+//     */
+//    double getWorldBorderSize();
+//
+//    /**
+//     * Sets a new world border size.
+//     * @param worldBorderSize The new world border size.
+//     */
+//    void setWorldBorderSize(double worldBorderSize);
 
     /**
      * @return Returns the world's player spawn position.
