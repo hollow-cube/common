@@ -22,5 +22,5 @@ public interface Section {
 
     void addSectionAction(int index, @NotNull SectionAction action);
 
-    void runSectionAction(int index, Player player, ClickType type);
+    void runSectionAction(int index, Player player, ClickType type, ItemStack clickedItem);
 }

@@ -157,7 +157,7 @@ public class SinglePageGUI extends Inventory implements GUI {
             int yOffset = offset / getMaxWidth();
             entry.getValue().runSectionAction(
                     yOffset * entry.getValue().ySize() + xOffset,
-                    player, type);
+                    player, type, getItemStack(slot));
             return entry.getValue().isModifiable();
         } else {
             // See if we have any actions at the index

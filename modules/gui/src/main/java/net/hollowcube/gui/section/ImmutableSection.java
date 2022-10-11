@@ -58,8 +58,8 @@ public class ImmutableSection implements Section {
     }
 
     @Override
-    public void runSectionAction(int index, Player player, ClickType type) {
-        actions.get(index).onClick(player, this, type);
+    public void runSectionAction(int index, Player player, ClickType type, ItemStack clickedItem) {
+        actions.get(index).onClick(player, this, type, clickedItem);
     }
 
 
