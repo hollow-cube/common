@@ -4,6 +4,7 @@ import net.ltgt.gradle.errorprone.errorprone
 subprojects {
     apply(plugin = "java")
     apply(plugin = "net.ltgt.errorprone")
+    apply(plugin = "maven-publish")
 
     group = "net.hollowcube.common"
 
@@ -45,6 +46,18 @@ subprojects {
         options.errorprone {
             check("NullAway", CheckSeverity.ERROR)
             option("NullAway:AnnotatedPackages", "com.uber")
+        }
+    }
+
+    configure<JavaPluginExtension> {
+        withSourcesJar()
+    }
+
+    configure<PublishingExtension> {
+        publications {
+            create<MavenPublication>("mavenJava") {
+                from(components["java"])
+            }
         }
     }
 }
