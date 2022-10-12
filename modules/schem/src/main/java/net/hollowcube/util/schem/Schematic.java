@@ -53,8 +53,6 @@ public record Schematic(
     /**
      * Convert the schematic into a {@link RelativeBlockBatch} which can be applied to an instance.
      * The schematic can be rotated around its {@link #offset()} before placement.
-     * <p>
-     * Note: Right now only stairs are rotated correctly, other block states are unchanged.
      *
      * @param rotation The rotation to apply to the schematic.
      * @param blockModifier If present, called on each individual block before it is placed.
