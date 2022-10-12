@@ -5,5 +5,6 @@ include(":modules")
 include(":modules:common")
 include(":modules:dev")
 // Standalone modules
+include(":modules:mql")
 include(":modules:schem")
 include(":modules:test")
