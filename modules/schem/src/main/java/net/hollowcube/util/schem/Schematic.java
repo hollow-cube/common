@@ -135,10 +135,10 @@ public record Schematic(
         return switch (rotation) {
             case NONE -> block;
             case CLOCKWISE_90 -> block.withProperties(Map.of(
-                    "north", block.getProperty("east"),
-                    "east", block.getProperty("south"),
-                    "south", block.getProperty("west"),
-                    "west", block.getProperty("north")
+                    "north", block.getProperty("west"),
+                    "east", block.getProperty("north"),
+                    "south", block.getProperty("east"),
+                    "west", block.getProperty("south")
             ));
             case CLOCKWISE_180 -> block.withProperties(Map.of(
                     "north", block.getProperty("south"),
@@ -147,10 +147,10 @@ public record Schematic(
                     "west", block.getProperty("east")
             ));
             case CLOCKWISE_270 -> block.withProperties(Map.of(
-                    "north", block.getProperty("west"),
-                    "east", block.getProperty("north"),
-                    "south", block.getProperty("east"),
-                    "west", block.getProperty("south")
+                    "north", block.getProperty("east"),
+                    "east", block.getProperty("south"),
+                    "south", block.getProperty("west"),
+                    "west", block.getProperty("north")
             ));
         };
     }
