@@ -93,7 +93,7 @@ public record Schematic(
         }
     }
 
-    public @NotNull Point rotatePos(@NotNull Point point, @NotNull Rotation rotation) {
+    private static @NotNull Point rotatePos(@NotNull Point point, @NotNull Rotation rotation) {
         return switch (rotation) {
             case NONE -> point;
             case CLOCKWISE_90 -> new Vec(-point.z(), point.y(), point.x());
@@ -102,7 +102,7 @@ public record Schematic(
         };
     }
 
-    public @NotNull Block rotateBlock(@NotNull Block block, @NotNull Rotation rotation) {
+    public static @NotNull Block rotateBlock(@NotNull Block block, @NotNull Rotation rotation) {
         if (rotation == Rotation.NONE) return block;
 
         Block newBlock = block;
