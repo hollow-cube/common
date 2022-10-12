@@ -11,6 +11,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
@@ -38,11 +39,20 @@ public record Schematic(
         return Arrays.copyOf(blocks, blocks.length);
     }
 
+    public Point size(Rotation rotation) {
+        final Point rotatedPos = rotatePos(size, rotation);
+
+        // get abs vec (no negative size)
+        return new Vec(Math.abs(rotatedPos.blockX()), Math.abs(rotatedPos.blockY()), Math.abs(rotatedPos.blockZ()));
+    }
+
+    public Point offset(Rotation rotation) {
+        return rotatePos(offset, rotation);
+    }
+
     /**
      * Convert the schematic into a {@link RelativeBlockBatch} which can be applied to an instance.
      * The schematic can be rotated around its {@link #offset()} before placement.
-     * <p>
-     * Note: Right now only stairs are rotated correctly, other block states are unchanged.
      *
      * @param rotation The rotation to apply to the schematic.
      * @param blockModifier If present, called on each individual block before it is placed.
@@ -81,7 +91,7 @@ public record Schematic(
         }
     }
 
-    private @NotNull Point rotatePos(@NotNull Point point, @NotNull Rotation rotation) {
+    private static @NotNull Point rotatePos(@NotNull Point point, @NotNull Rotation rotation) {
         return switch (rotation) {
             case NONE -> point;
             case CLOCKWISE_90 -> new Vec(-point.z(), point.y(), point.x());
@@ -90,20 +100,58 @@ public record Schematic(
         };
     }
 
-    private @NotNull Block rotateBlock(@NotNull Block block, @NotNull Rotation rotation) {
-        if (block.name().contains("stair")) {
-            return rotateStair(block, rotation);
-        } else {
-            return block;
+    public static @NotNull Block rotateBlock(@NotNull Block block, @NotNull Rotation rotation) {
+        if (rotation == Rotation.NONE) return block;
+
+        Block newBlock = block;
+
+        if (block.getProperty("facing") != null) {
+            newBlock = rotateFacing(block, rotation);
         }
+        if (block.getProperty("north") != null) {
+            newBlock = rotateFence(block, rotation);
+        }
+
+        return newBlock;
     }
 
-    private static Block rotateStair(Block block, Rotation rotation) {
+    /**
+     * Rotates blocks that have a "facing" property
+     */
+    private static Block rotateFacing(Block block, Rotation rotation) {
         return switch (rotation) {
             case NONE -> block;
             case CLOCKWISE_90 -> block.withProperty("facing", rotate90(block.getProperty("facing")));
             case CLOCKWISE_180 -> block.withProperty("facing", rotate90(rotate90(block.getProperty("facing"))));
             case CLOCKWISE_270 -> block.withProperty("facing", rotate90(rotate90(rotate90(block.getProperty("facing")))));
+        };
+    }
+
+    /**
+     * Rotates fences, walls and glass panes
+     * (blocks that have "north" "east" "south" "west" properties)
+     */
+    private static Block rotateFence(Block block, Rotation rotation) {
+        return switch (rotation) {
+            case NONE -> block;
+            case CLOCKWISE_90 -> block.withProperties(Map.of(
+                    "north", block.getProperty("west"),
+                    "east", block.getProperty("north"),
+                    "south", block.getProperty("east"),
+                    "west", block.getProperty("south")
+            ));
+            case CLOCKWISE_180 -> block.withProperties(Map.of(
+                    "north", block.getProperty("south"),
+                    "east", block.getProperty("west"),
+                    "south", block.getProperty("north"),
+                    "west", block.getProperty("east")
+            ));
+            case CLOCKWISE_270 -> block.withProperties(Map.of(
+                    "north", block.getProperty("east"),
+                    "east", block.getProperty("south"),
+                    "south", block.getProperty("west"),
+                    "west", block.getProperty("north")
+            ));
         };
     }
 

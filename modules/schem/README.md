@@ -16,6 +16,6 @@ dependencies {
 The simplest usage is as follows, which will load a schematic file and place it at 0, 0, 0:
 
 ```java
-var schematic = SchematicReader.read(Paths.get("path/to/schematic.schem"));
-schem.build(Rotation.NONE, null).apply(instance, 0, 0, 0);
+var schematic = SchematicReader.read(Path.of("path/to/schematic.schem"));
+schem.build(Rotation.NONE, null).apply(instance, 0, 0, 0, null);
 ```
