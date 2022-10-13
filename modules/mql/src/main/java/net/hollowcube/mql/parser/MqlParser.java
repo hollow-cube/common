@@ -3,7 +3,6 @@ package net.hollowcube.mql.parser;
 import net.hollowcube.mql.tree.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import net.hollowcube.mql.tree.*;
 
 public class MqlParser {
     private final MqlLexer lexer;

@@ -17,7 +17,7 @@ public record MqlBinaryExpr(
     @Override
     public MqlValue evaluate(@NotNull MqlScope scope) {
         var lhs = lhs().evaluate(scope).cast(MqlNumberValue.class);
-        var rhs = lhs().evaluate(scope).cast(MqlNumberValue.class);
+        var rhs = rhs().evaluate(scope).cast(MqlNumberValue.class);
 
         return switch (operator()) {
             case PLUS -> new MqlNumberValue(lhs.value() + rhs.value());
