@@ -33,7 +33,12 @@ public class MqlParser {
                 case MEMBER_ACCESS -> {
                     if (!(rhs instanceof MqlIdentExpr ident))
                         throw new MqlParseError("rhs of member access must be an ident, was " + rhs);
-                    yield new MqlAccessExpr(lhs, ident.value());
+
+                    var peek = lexer.peek();
+                    if (peek != null && peek.type() == MqlToken.Type.LPAREN)
+                        yield new MqlAccessExpr(lhs, ident.value(), expr(op.rbp));
+
+                    yield(new MqlAccessExpr(lhs, ident.value(), null));
                 }
                 default -> new MqlBinaryExpr(op.op, lhs, rhs);
             };
@@ -50,6 +55,12 @@ public class MqlParser {
         return switch (token.type()) {
             case NUMBER -> new MqlNumberExpr(Double.parseDouble(lexer.span(token)));
             case IDENT -> new MqlIdentExpr(lexer.span(token));
+            case LPAREN -> {
+                var expr = expr(0);
+                if (lexer.next().type() != MqlToken.Type.RPAREN)
+                    throw new MqlParseError("expected ')'");
+                yield expr;
+            }
             //todo better error handling
             default -> throw new MqlParseError("unexpected token " + token);
         };

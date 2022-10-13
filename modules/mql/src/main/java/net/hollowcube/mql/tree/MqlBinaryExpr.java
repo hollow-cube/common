@@ -1,9 +1,12 @@
 package net.hollowcube.mql.tree;
 
+import net.hollowcube.mql.foreign.MqlForeignFunctions;
 import net.hollowcube.mql.runtime.MqlScope;
 import net.hollowcube.mql.value.MqlNumberValue;
 import net.hollowcube.mql.value.MqlValue;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.List;
 
 public record MqlBinaryExpr(
         @NotNull Op operator,
@@ -19,14 +22,28 @@ public record MqlBinaryExpr(
 
     @Override
     public MqlValue evaluate(@NotNull MqlScope scope) {
-        var lhs = lhs().evaluate(scope).cast(MqlNumberValue.class);
-        var rhs = rhs().evaluate(scope).cast(MqlNumberValue.class);
+        MqlNumberValue lhsEval;
+
+        var lhsVal = lhs().evaluate(scope);
+
+        if (lhsVal instanceof MqlNumberValue) {
+            lhsEval = lhsVal.cast(MqlNumberValue.class);
+        } else if (lhsVal instanceof MqlForeignFunctions.ForeignCallable f) {
+            if (((MqlAccessExpr)lhs).body() == null) {
+                lhsEval = lhsVal.cast(MqlNumberValue.class);
+            } else
+                lhsEval = f.call(List.of(((MqlAccessExpr)lhs).body().evaluate(scope))).cast(MqlNumberValue.class);;
+        } else {
+            throw new RuntimeException("lhs is not a number or foreign function");
+        }
+
+        MqlNumberValue rhsEval = rhs().evaluate(scope).cast(MqlNumberValue.class);
 
         return switch (operator()) {
-            case PLUS -> new MqlNumberValue(lhs.value() + rhs.value());
-            case MINUS -> new MqlNumberValue(lhs.value() - rhs.value());
-            case DIV -> new MqlNumberValue(lhs.value() / rhs.value());
-            case MUL -> new MqlNumberValue(lhs.value() * rhs.value());
+            case PLUS -> new MqlNumberValue(lhsEval.value() + rhsEval.value());
+            case MINUS -> new MqlNumberValue(lhsEval.value() - rhsEval.value());
+            case DIV -> new MqlNumberValue(lhsEval.value() / rhsEval.value());
+            case MUL -> new MqlNumberValue(lhsEval.value() * rhsEval.value());
         };
     }
 

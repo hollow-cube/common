@@ -4,11 +4,12 @@ import net.hollowcube.mql.runtime.MqlScope;
 import net.hollowcube.mql.value.MqlHolder;
 import net.hollowcube.mql.value.MqlValue;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public record MqlAccessExpr(
         @NotNull MqlExpr lhs,
-        @NotNull String target
-) implements MqlExpr {
+        @NotNull String target,
+        @Nullable MqlExpr body) implements MqlExpr {
 
     @Override
     public MqlValue evaluate(@NotNull MqlScope scope) {
