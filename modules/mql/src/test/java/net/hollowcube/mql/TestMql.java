@@ -160,5 +160,4 @@ public class TestMql {
         assertTrue(result instanceof MqlNumberValue);
         assertEquals(((10 + (3)) * (3 - 1)) - 5 + ((2 * 3) - 10) * (10 + (10 * (3 + 3))), ((MqlNumberValue) result).value());
     }
-
 }
