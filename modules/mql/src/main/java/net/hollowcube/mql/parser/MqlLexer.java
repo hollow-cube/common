@@ -85,6 +85,9 @@ public class MqlLexer {
         var tokenType = switch (c) {
             // @formatter:off
             case '+' -> MqlToken.Type.PLUS;
+            case '-' -> MqlToken.Type.MINUS;
+            case '*' -> MqlToken.Type.MUL;
+            case '/' -> MqlToken.Type.DIV;
             case '.' -> MqlToken.Type.DOT;
             default -> throw new MqlParseError(
                     String.format("unexpected token '%s' at %d.", c, cursor));
