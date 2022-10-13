@@ -11,16 +11,22 @@ public record MqlBinaryExpr(
         @NotNull MqlExpr rhs
 ) implements MqlExpr {
     public enum Op {
-        PLUS
+        PLUS,
+        MINUS,
+        DIV,
+        MUL
     }
 
     @Override
     public MqlValue evaluate(@NotNull MqlScope scope) {
         var lhs = lhs().evaluate(scope).cast(MqlNumberValue.class);
-        var rhs = lhs().evaluate(scope).cast(MqlNumberValue.class);
+        var rhs = rhs().evaluate(scope).cast(MqlNumberValue.class);
 
         return switch (operator()) {
             case PLUS -> new MqlNumberValue(lhs.value() + rhs.value());
+            case MINUS -> new MqlNumberValue(lhs.value() - rhs.value());
+            case DIV -> new MqlNumberValue(lhs.value() / rhs.value());
+            case MUL -> new MqlNumberValue(lhs.value() * rhs.value());
         };
     }
 
