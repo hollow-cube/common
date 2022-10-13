@@ -11,7 +11,10 @@ public record MqlBinaryExpr(
         @NotNull MqlExpr rhs
 ) implements MqlExpr {
     public enum Op {
-        PLUS
+        PLUS,
+        MINUS,
+        DIV,
+        MUL
     }
 
     @Override
@@ -21,6 +24,9 @@ public record MqlBinaryExpr(
 
         return switch (operator()) {
             case PLUS -> new MqlNumberValue(lhs.value() + rhs.value());
+            case MINUS -> new MqlNumberValue(lhs.value() - rhs.value());
+            case DIV -> new MqlNumberValue(lhs.value() / rhs.value());
+            case MUL -> new MqlNumberValue(lhs.value() * rhs.value());
         };
     }
 

@@ -60,6 +60,9 @@ public class MqlParser {
         if (token == null) return null;
         return switch (token.type()) {
             case PLUS -> InfixOp.PLUS;
+            case MINUS -> InfixOp.MINUS;
+            case DIV -> InfixOp.DIV;
+            case MUL -> InfixOp.MUL;
             case DOT -> InfixOp.MEMBER_ACCESS;
             default -> null;
         };
@@ -67,6 +70,10 @@ public class MqlParser {
 
     private enum InfixOp {
         PLUS(25, 26, MqlBinaryExpr.Op.PLUS),
+        MINUS(25, 26, MqlBinaryExpr.Op.MINUS),
+        DIV(27, 28, MqlBinaryExpr.Op.DIV),
+        MUL(27, 28, MqlBinaryExpr.Op.MUL),
+
         MEMBER_ACCESS(35, 36, null);
 
         private final int lbp;

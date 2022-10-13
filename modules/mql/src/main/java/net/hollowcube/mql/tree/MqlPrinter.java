@@ -10,6 +10,9 @@ public class MqlPrinter implements MqlVisitor<Void, String> {
                 "(%s %s %s)",
                 switch (expr.operator()) {
                     case PLUS -> "+";
+                    case MINUS -> "-";
+                    case MUL -> "*";
+                    case DIV -> "/";
                 },
                 visit(expr.lhs(), null),
                 visit(expr.rhs(), null)
