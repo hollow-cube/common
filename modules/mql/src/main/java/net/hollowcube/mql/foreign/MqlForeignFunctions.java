@@ -2,9 +2,9 @@ package net.hollowcube.mql.foreign;
 
 import net.hollowcube.mql.runtime.MqlRuntimeError;
 import net.hollowcube.mql.runtime.MqlScope;
+import net.hollowcube.mql.util.StringUtil;
 import net.hollowcube.mql.value.MqlCallable;
 import net.hollowcube.mql.value.MqlValue;
-import net.hollowcube.util.StringUtil;
 import net.minestom.server.utils.validate.Check;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
