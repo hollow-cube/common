@@ -1,6 +1,5 @@
 package net.hollowcube.gui;
 
-import net.hollowcube.gui.actions.GUIAction;
 import net.hollowcube.gui.section.Section;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.entity.Player;
@@ -11,24 +10,18 @@ import net.minestom.server.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-public class SinglePageGUI extends Inventory implements GUI {
-
+public class GUIImpl extends Inventory implements GUI {
     private ItemStack defaultItem = ItemStack.AIR;
 
     // Integer represents offset of the section
     private final HashMap<Integer, Section> sectionMap = new HashMap<>();
-    private final HashMap<Integer, GUIAction> actionMap = new HashMap<>();
 
-    public SinglePageGUI(@NotNull InventoryType inventoryType, @NotNull Component title) {
+    public GUIImpl(@NotNull InventoryType inventoryType, @NotNull Component title) {
         super(inventoryType, title);
-    }
-
-    @Override
-    public void changePage(int amount) {
-        // Do nothing, we're a single page
     }
 
     @Override
@@ -60,7 +53,6 @@ public class SinglePageGUI extends Inventory implements GUI {
         int index = yOffset * maxXWidth + xOffset;
         sectionMap.put(index, section);
     }
-
     @Override
     public void setDefaultItem(@NotNull ItemStack item) {
         defaultItem = item;
@@ -68,8 +60,12 @@ public class SinglePageGUI extends Inventory implements GUI {
 
     @Override
     public @NotNull ItemStack[] getItemStacks() {
-        throw new UnsupportedOperationException("TODO");
-        // TODO combine sections together into entire array
+        ItemStack[] stacks = new ItemStack[getSize()];
+        Arrays.fill(stacks, defaultItem);
+
+        // Iterate over sectionMap, assign items to slots accordingly
+
+        return stacks;
     }
 
     private @Nullable Map.Entry<Integer, Section> getSectionEntry(int x, int y) {
@@ -92,7 +88,7 @@ public class SinglePageGUI extends Inventory implements GUI {
             case ANVIL, WINDOW_3X3, CRAFTING, GRINDSTONE, MERCHANT, SMITHING -> 3;
             case HOPPER -> 5;
             case CHEST_1_ROW, CHEST_2_ROW, CHEST_3_ROW, CHEST_4_ROW, CHEST_5_ROW, CHEST_6_ROW, SHULKER_BOX -> 9;
-            case LECTERN -> throw new IllegalStateException("Single page GUI was created with a Lecturn inventory type!");
+            case LECTERN -> throw new IllegalStateException("GUI was created with a Lecturn inventory type!");
         };
     }
 
@@ -104,7 +100,7 @@ public class SinglePageGUI extends Inventory implements GUI {
             case CHEST_4_ROW -> 4;
             case CHEST_5_ROW, BREWING_STAND -> 5;
             case CHEST_6_ROW -> 6;
-            case LECTERN -> throw new IllegalStateException("Single page GUI was created with a Lecturn inventory type!");
+            case LECTERN -> throw new IllegalStateException("GUI was created with a Lecturn inventory type!");
         };
     }
 
@@ -155,15 +151,9 @@ public class SinglePageGUI extends Inventory implements GUI {
             // We now have the slot difference between our starting point of the section and the ending point of the section, now to figure out section position
             int xOffset = offset % getMaxWidth();
             int yOffset = offset / getMaxWidth();
-            entry.getValue().runSectionAction(
+            return entry.getValue().runSectionAction(
                     yOffset * entry.getValue().ySize() + xOffset,
-                    player, type, getItemStack(slot));
-            return entry.getValue().isModifiable();
-        } else {
-            // See if we have any actions at the index
-            if (actionMap.containsKey(slot)) {
-                actionMap.get(slot).onClick(player, this, type);
-            }
+                    player, this, type, getItemStack(slot));
         }
         return false;
     }

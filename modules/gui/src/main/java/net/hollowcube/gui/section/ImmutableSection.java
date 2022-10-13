@@ -1,5 +1,6 @@
 package net.hollowcube.gui.section;
 
+import net.hollowcube.gui.GUI;
 import net.hollowcube.gui.actions.SectionAction;
 import net.minestom.server.entity.Player;
 import net.minestom.server.inventory.click.ClickType;
@@ -34,11 +35,6 @@ public class ImmutableSection implements Section {
     }
 
     @Override
-    public boolean isModifiable() {
-        return false;
-    }
-
-    @Override
     public int xSize() {
         return xSize;
     }
@@ -58,9 +54,7 @@ public class ImmutableSection implements Section {
     }
 
     @Override
-    public void runSectionAction(int index, Player player, ClickType type, ItemStack clickedItem) {
-        actions.get(index).onClick(player, this, type, clickedItem);
+    public boolean runSectionAction(int index, Player player, GUI parentGUI, ClickType type, ItemStack clickedItem) {
+        return actions.get(index).onClick(player, parentGUI, this, type, clickedItem);
     }
-
-
 }
