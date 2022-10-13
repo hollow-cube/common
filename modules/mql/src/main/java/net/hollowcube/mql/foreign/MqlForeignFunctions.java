@@ -120,7 +120,7 @@ public class MqlForeignFunctions {
         }
     }
 
-    private record ForeignCallable(
+    public record ForeignCallable(
             NConsumer handle,
             Class<?>[] parameterTypes,
             Class<?> returnType

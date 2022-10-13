@@ -7,8 +7,8 @@ import org.jetbrains.annotations.NotNull;
 
 public record MqlAccessExpr(
         @NotNull MqlExpr lhs,
-        @NotNull String target
-) implements MqlExpr {
+        @NotNull String target,
+        @NotNull MqlExpr body) implements MqlExpr {
 
     @Override
     public MqlValue evaluate(@NotNull MqlScope scope) {

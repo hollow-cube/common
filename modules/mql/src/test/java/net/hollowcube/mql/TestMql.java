@@ -161,4 +161,19 @@ public class TestMql {
         assertEquals(((10 + (3)) * (3 - 1)) - 5 + ((2 * 3) - 10) * (10 + (10 * (3 + 3))), ((MqlNumberValue) result).value());
     }
 
+    @Test
+    public void testFunctions() {
+        var source = "math.sin(5 + 1) * 6";
+
+        var expr = new MqlParser(source).parse();
+
+        var scopeImpl = new MqlScopeImpl();
+        var vars = new MqlScopeImpl.Mutable();
+
+        var scope = new MqlScriptScope(scopeImpl, vars, scopeImpl);
+        var result = expr.evaluate(scope);
+
+        assertTrue(result instanceof MqlNumberValue);
+        assertEquals(Math.sin(5 + 1) * 6, ((MqlNumberValue) result).value());
+    }
 }
