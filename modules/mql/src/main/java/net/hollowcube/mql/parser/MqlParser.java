@@ -27,8 +27,6 @@ public class MqlParser {
 
             lexer.next(); // Operator token
 
-            if (op == InfixOp.NONE) return lhs;
-
             // Parse right side expression
             MqlExpr rhs = expr(op.rbp);
             lhs = switch (op) {
@@ -52,7 +50,12 @@ public class MqlParser {
         return switch (token.type()) {
             case NUMBER -> new MqlNumberExpr(Double.parseDouble(lexer.span(token)));
             case IDENT -> new MqlIdentExpr(lexer.span(token));
-            case LPAREN -> expr(0);
+            case LPAREN -> {
+                var expr = expr(0);
+                if (lexer.next().type() != MqlToken.Type.RPAREN)
+                    throw new MqlParseError("expected ')'");
+                yield expr;
+            }
             //todo better error handling
             default -> throw new MqlParseError("unexpected token " + token);
         };
@@ -66,7 +69,6 @@ public class MqlParser {
             case MINUS -> InfixOp.MINUS;
             case DIV -> InfixOp.DIV;
             case MUL -> InfixOp.MUL;
-            case LPAREN, RPAREN -> InfixOp.NONE;
             case DOT -> InfixOp.MEMBER_ACCESS;
             default -> null;
         };
@@ -77,7 +79,6 @@ public class MqlParser {
         MINUS(25, 26, MqlBinaryExpr.Op.MINUS),
         DIV(27, 28, MqlBinaryExpr.Op.DIV),
         MUL(27, 28, MqlBinaryExpr.Op.MUL),
-        NONE(0, 0, null),
 
         MEMBER_ACCESS(35, 36, null);
 
