@@ -1,55 +1,169 @@
 package net.hollowcube.mql.compile;
 
+import net.hollowcube.mql.parser.MqlParser;
 import net.hollowcube.mql.tree.*;
 import org.jetbrains.annotations.NotNull;
-import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.MethodVisitor;
 
-public class MqlCompiler implements MqlVisitor<Context, Void> {
-    @Override
-    public Void visitBinaryExpr(@NotNull MqlBinaryExpr expr, Context ctx) {
-        visit(expr.lhs(), ctx);
-        visit(expr.rhs(), ctx);
+import static org.objectweb.asm.Opcodes.*;
 
-        var method = ctx.method();
-        switch (expr.operator()) {
-            case PLUS -> method.visitInsn(Opcodes.DADD);
-        }
+/**
+ * A compiler for MQL scripts.
+ * <p>
+ * Some reflection calls are cached, so this object should be reused as much as possible.
+ * <p>
+ * Note: This class is not thread-safe, and must be synchronized externally.
+ */
+public class MqlCompiler<_Query, _Context> {
+    private final ClassInfo queryClass;
 
-        return null;
+    private final ClassInfo contextClass;
+
+    public MqlCompiler(Class<_Query> queryClass, Class<_Context> contextClass) {
+        this.queryClass = new ClassInfo(queryClass);
+        this.contextClass = new ClassInfo(contextClass);
     }
 
-    @Override
-    public Void visitAccessExpr(@NotNull MqlAccessExpr expr, Context ctx) {
-        if (expr.lhs() instanceof MqlIdentExpr ident) {
-            if (!ident.value().equals("q")) {
-                throw new UnsupportedOperationException("Only q is supported as a query object");
+    // Public API
+
+    public @NotNull MqlScript<_Query, _Context> compile(@NotNull String source) {
+        String sourceHash = Integer.toHexString(source.hashCode());
+        // Could cache based on the hash if compiling many times over is a valid use case, but I don't think it is.
+
+        // Parse to an expression tree
+        MqlExpr expr = new MqlParser(source).parse();
+
+        // Create the class
+        String className = "mql$" + sourceHash;
+        ClassWriter scriptClass = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+        var sig = String.format("L%s<%s%s>;", getClassName(MqlScript.class), queryClass.descriptor(), contextClass.descriptor());
+        scriptClass.visit(V17, ACC_PUBLIC | ACC_FINAL, className, sig, getClassName(Object.class), new String[]{AsmUtil.toName(MqlScript.class)});
+
+        // Generate required synthetics
+        generateSynthetics(className, scriptClass);
+
+        // Generate evaluate method from input expression
+        MethodVisitor evalMethod = scriptClass.visitMethod(ACC_PUBLIC, "evaluate", getEvalFnDescriptor(), null, null);
+        evalMethod.visitCode();
+        new BytecodeGeneratingVisitor(className, evalMethod).visit(expr, null);
+        evalMethod.visitInsn(DRETURN); // ok because all expressions leave a double on the stack
+        evalMethod.visitMaxs(0, 0);
+        evalMethod.visitEnd();
+
+        // Finish the class and return it
+        scriptClass.visitEnd();
+
+        byte[] bytecode = scriptClass.toByteArray();
+        //todo load class and return it
+
+        throw new RuntimeException("not implemented");
+    }
+
+    // Internal helpers
+
+    private @NotNull String getEvalFnDescriptor() {
+        return String.format("(%s%s)D", queryClass.descriptor(), contextClass.descriptor());
+    }
+
+    private void generateSynthetics(@NotNull String className, @NotNull ClassVisitor scriptClass) {
+        // Add empty constructor
+        var mv = scriptClass.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
+        mv.visitCode();
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "<init>", "()V", false);
+        mv.visitInsn(RETURN);
+        mv.visitMaxs(1,1);
+        mv.visitEnd();
+
+        // Insert bridge method for evaluate
+        mv = scriptClass.visitMethod(ACC_PUBLIC | ACC_SYNTHETIC | ACC_BRIDGE, "evaluate", "(Ljava/lang/Object;Ljava/lang/Object;)D", null, null);
+        mv.visitCode();
+
+        mv.visitVarInsn(ALOAD, 0); // this
+        mv.visitVarInsn(ALOAD, 1); // query
+        mv.visitTypeInsn(CHECKCAST, queryClass.name());
+        mv.visitVarInsn(ALOAD, 2); // context
+        mv.visitTypeInsn(CHECKCAST, contextClass.name());
+        mv.visitMethodInsn(INVOKEVIRTUAL, className, "evaluate", getEvalFnDescriptor(), false);
+        mv.visitInsn(DRETURN);
+
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+    }
+
+    // Utils
+
+    /**
+     * Ast visitor that generates bytecode for the given expression in the given method.
+     * <p>
+     * Note: Every expression _must_ leave a double on the stack. If the expression has no result, it should leave 0.
+     *
+     * @param className
+     * @param method
+     */
+    private record BytecodeGeneratingVisitor(
+            @NotNull String className,
+            @NotNull MethodVisitor method
+    ) implements MqlVisitor<Void, Void> {
+
+        @Override
+        public Void visitBinaryExpr(@NotNull MqlBinaryExpr expr, Void unused) {
+            // Visit both sides, resulting in two doubles on the stack
+            visit(expr.lhs(), null);
+            visit(expr.rhs(), null);
+
+            // Perform the operation
+            switch (expr.operator()) {
+                case PLUS -> method.visitInsn(DADD);
             }
 
-            var method = ctx.method();
-            method.visitVarInsn(Opcodes.ALOAD, 1);
-            method.visitMethodInsn(Opcodes.INVOKEVIRTUAL, ctx.queryClassName(), expr.target(), "()D", false);
-        } else {
-            throw new RuntimeException("Not implemented");
+            return null;
         }
-        System.out.println("ACCESS " + expr.lhs() + " " + expr.target());
-        return null;
+
+        @Override
+        public Void visitAccessExpr(@NotNull MqlAccessExpr expr, Void unused) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public Void visitNumberExpr(@NotNull MqlNumberExpr expr, Void unused) {
+            double value = expr.value().value();
+            if (value == 0) {
+                method.visitInsn(DCONST_0);
+            } else if (value == 1) {
+                method.visitInsn(DCONST_1);
+            } else {
+                method.visitLdcInsn(value);
+            }
+            return null;
+        }
+
+        @Override
+        public Void visitRefExpr(@NotNull MqlIdentExpr expr, Void unused) {
+            throw new UnsupportedOperationException();
+        }
+
     }
 
-    @Override
-    public Void visitNumberExpr(@NotNull MqlNumberExpr expr, Context ctx) {
-        var method = ctx.method();
-        method.visitLdcInsn(expr.value().value());
-        return null;
+    private static class ClassInfo {
+        private final Class<?> clazz;
+
+        public ClassInfo(@NotNull Class<?> clazz) {
+            this.clazz = clazz;
+        }
+
+        public @NotNull String name() {
+            return getClassName(clazz);
+        }
+
+        public @NotNull String descriptor() {
+            return "L" + name() + ";";
+        }
     }
 
-    @Override
-    public Void visitRefExpr(@NotNull MqlIdentExpr expr, Context ctx) {
-        System.out.println("REF");
-        return null;
-    }
-
-    @Override
-    public Void defaultValue() {
-        return null;
+    private static @NotNull String getClassName(@NotNull Class<?> clazz) {
+        return clazz.getName().replace(".", "/");
     }
 }
