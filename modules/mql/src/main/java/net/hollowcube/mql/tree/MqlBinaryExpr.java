@@ -1,12 +1,9 @@
 package net.hollowcube.mql.tree;
 
 import net.hollowcube.mql.runtime.MqlScope;
-import net.hollowcube.mql.value.MqlCallable;
 import net.hollowcube.mql.value.MqlNumberValue;
 import net.hollowcube.mql.value.MqlValue;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.List;
 
 public record MqlBinaryExpr(
         @NotNull Op operator,
