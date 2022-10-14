@@ -178,6 +178,21 @@ public class TestMql {
     }
 
     @Test
+    public void testParams2() {
+        var source = "math.sqrt(4)";
+
+        var expr = new MqlParser(source).parse();
+        var scopeImpl = new MqlScopeImpl();
+        var vars = new MqlScopeImpl.Mutable();
+
+        var scope = new MqlScriptScope(scopeImpl, vars, scopeImpl);
+        var result = expr.evaluate(scope);
+
+        assertTrue(result instanceof MqlNumberValue);
+        assertEquals(2, ((MqlNumberValue) result).value());
+    }
+
+    @Test
     public void testParamsExtended() {
         var source = "math.pow(10, 2) + 1";
 

@@ -38,8 +38,17 @@ public class MqlParser {
                         throw new MqlParseError("rhs of member access must be an ident, was " + rhs);
 
                     var peek = lexer.peek();
-                    if (peek != null && peek.type() == MqlToken.Type.LPAREN)
-                        yield new MqlAccessExpr(lhs, ident.value(), (MqlArgListExpr) expr(op.rbp));
+                    if (peek != null && peek.type() == MqlToken.Type.LPAREN) {
+                        var res = expr(op.rbp);
+
+                        if (res instanceof MqlArgListExpr args) {
+                            // Arg list returned
+                            yield new MqlAccessExpr(lhs, ident.value(), args);
+                        } else {
+                            // Single param, create list
+                            yield new MqlAccessExpr(lhs, ident.value(), new MqlArgListExpr(List.of(res)));
+                        }
+                    }
 
                     yield(new MqlAccessExpr(lhs, ident.value(), null));
                 }
