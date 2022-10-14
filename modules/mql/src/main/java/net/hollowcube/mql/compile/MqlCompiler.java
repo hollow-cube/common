@@ -74,7 +74,7 @@ public class MqlCompiler<_Query, _Context> {
         mv.visitVarInsn(ALOAD, 0);
         mv.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "<init>", "()V", false);
         mv.visitInsn(RETURN);
-        mv.visitMaxs(1,1);
+        mv.visitMaxs(1, 1);
         mv.visitEnd();
 
         // Insert bridge method for evaluate
@@ -117,6 +117,9 @@ public class MqlCompiler<_Query, _Context> {
             // Perform the operation
             switch (expr.operator()) {
                 case PLUS -> method.visitInsn(DADD);
+                case MINUS -> method.visitInsn(DSUB);
+                case MUL -> method.visitInsn(DMUL);
+                case DIV -> method.visitInsn(DDIV);
             }
 
             return null;
