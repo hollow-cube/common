@@ -11,7 +11,7 @@ public class TestBasicCompilation {
 
         ctx.begin();
         var expr = net.hollowcube.mql.MqlScript.parse("q.is_alive").expr();
-        new MqlCompiler().visit(expr, ctx);
+        new MqlCompilerOld().visit(expr, ctx);
         byte[] classData = ctx.end();
 
         System.out.println(visitor.bytecode());
