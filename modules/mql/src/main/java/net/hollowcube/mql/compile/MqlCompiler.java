@@ -4,7 +4,6 @@ import net.hollowcube.mql.parser.MqlParser;
 import net.hollowcube.mql.tree.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.TestOnly;
-import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
@@ -131,7 +130,10 @@ public class MqlCompiler<_Query, _Context> {
 
         @Override
         public Void visitAccessExpr(@NotNull MqlAccessExpr expr, Void unused) {
-            throw new UnsupportedOperationException();
+            if (expr.lhs() instanceof MqlIdentExpr ident) {
+//                if (!"q")
+            }
+            return null;
         }
 
         @Override

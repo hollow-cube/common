@@ -3,47 +3,52 @@ package net.hollowcube.mql.compile;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.InsnList;
-import org.objectweb.asm.util.Printer;
 import org.objectweb.asm.util.Textifier;
 import org.objectweb.asm.util.TraceMethodVisitor;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+
 public class TestBasicCompilation {
 
     @Test
-    public void experiment() throws Exception {
+    public void singleNumber() {
+        check("0", """
+                DCONST_0
+                DRETURN
+                """);
+        check("1", """
+                DCONST_1
+                DRETURN
+                """);
+        check("1.234", """
+                LDC 1.234
+                DRETURN
+                """);
+    }
+
+    @Test
+    public void simpleAddition() {
+        check("1 + 1", """
+                DCONST_1
+                DCONST_1
+                DADD
+                DRETURN
+                """);
+    }
+
+    private void check(@NotNull String source, @NotNull String expected) {
         var compiler = new MqlCompiler<>(Object.class, Object.class);
-        byte[] bytecode = compiler.compileBytecode("1 + 2");
+        byte[] bytecode = compiler.compileBytecode(source);
 
         var str = prettyPrintEvalMethod(bytecode);
-        System.out.println(str);
-
-//        var cw = new ClassWriter(cr, ClassWriter.COMPUTE_MAXS);
-//
-//        var visitor = new InstrumentationClassVisitor(Opcodes.ASM9, cw);
-//        visitor.visitSource("TestBasicCompilation.java", null);
-//
-//        var visitor = new AsmUtil.StringClassVisitor();
-//        var ctx = new Context(TestEntityQuery.class, Object.class, visitor);
-//
-//        ctx.begin();
-//        var expr = net.hollowcube.mql.MqlScript.parse("q.is_alive").expr();
-//        new MqlCompilerOld().visit(expr, ctx);
-//        byte[] classData = ctx.end();
-//
-//        System.out.println(visitor.bytecode());
-//
-//        Class<MqlScript<TestEntityQuery, Object>> c = AsmUtil.loadClass("mql$todo_add_better_name", classData);
-//        var script = c.newInstance();
-//        System.out.println("result: " + script.evaluate(new TestEntityQuery(), new Object()));
+        assertEquals(expected, str);
     }
 
     private static @NotNull String prettyPrintEvalMethod(byte[] bytecode) {
@@ -64,7 +69,7 @@ public class TestBasicCompilation {
                 StringWriter sw = new StringWriter();
                 printer.print(new PrintWriter(sw));
                 printer.getText().clear();
-                str.append(sw);
+                str.append(sw.toString().trim()).append("\n");
             }
         }
 
