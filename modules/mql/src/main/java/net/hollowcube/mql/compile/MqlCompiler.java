@@ -2,11 +2,15 @@ package net.hollowcube.mql.compile;
 
 import net.hollowcube.mql.parser.MqlParser;
 import net.hollowcube.mql.tree.*;
+import net.hollowcube.mql.util.StringUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.TestOnly;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.objectweb.asm.Opcodes.*;
 
@@ -17,7 +21,7 @@ import static org.objectweb.asm.Opcodes.*;
  * <p>
  * Note: This class is not thread-safe, and must be synchronized externally.
  */
-public class MqlCompiler<_Query, _Context> {
+public final class MqlCompiler<_Query, _Context> {
     private final ClassInfo queryClass;
 
     private final ClassInfo contextClass;
@@ -102,14 +106,15 @@ public class MqlCompiler<_Query, _Context> {
      * Ast visitor that generates bytecode for the given expression in the given method.
      * <p>
      * Note: Every expression _must_ leave a double on the stack. If the expression has no result, it should leave 0.
-     *
-     * @param className
-     * @param method
      */
-    private record BytecodeGeneratingVisitor(
-            @NotNull String className,
-            @NotNull MethodVisitor method
-    ) implements MqlVisitor<Void, Void> {
+    private class BytecodeGeneratingVisitor implements MqlVisitor<Void, Void> {
+        private final String className;
+        private final MethodVisitor method;
+
+        private BytecodeGeneratingVisitor(@NotNull String className, @NotNull MethodVisitor method) {
+            this.className = className;
+            this.method = method;
+        }
 
         @Override
         public Void visitBinaryExpr(@NotNull MqlBinaryExpr expr, Void unused) {
@@ -131,7 +136,17 @@ public class MqlCompiler<_Query, _Context> {
         @Override
         public Void visitAccessExpr(@NotNull MqlAccessExpr expr, Void unused) {
             if (expr.lhs() instanceof MqlIdentExpr ident) {
-//                if (!"q")
+                if (!"q".equals(ident.value())) {
+                    throw new UnsupportedOperationException("Only q is supported as a query object");
+                }
+
+                var methodName = StringUtil.snakeCaseToCamelCase(expr.target());
+                var methodInfo = queryClass.getMethod(methodName);
+
+                method.visitVarInsn(ALOAD, 1); // query parameter
+                method.visitMethodInsn(INVOKEVIRTUAL, queryClass.name(), methodName, methodInfo.descriptor(), false);
+
+                if (methodInfo.returnType() == boolean.class)
             }
             return null;
         }
@@ -158,6 +173,7 @@ public class MqlCompiler<_Query, _Context> {
 
     private static class ClassInfo {
         private final Class<?> clazz;
+        private final Map<String, MethodInfo> methods = new HashMap<>();
 
         public ClassInfo(@NotNull Class<?> clazz) {
             this.clazz = clazz;
@@ -170,6 +186,34 @@ public class MqlCompiler<_Query, _Context> {
         public @NotNull String descriptor() {
             return "L" + name() + ";";
         }
+
+        public MethodInfo getMethod(@NotNull String name) {
+            return methods.computeIfAbsent(name, n -> {
+                for (var candidate : clazz.getMethods()) {
+                    if (candidate.getName().equals(n)) {
+                        return new MethodInfo(candidate.getName(), candidate.getReturnType(), candidate.getParameterTypes());
+                    }
+                }
+                throw new IllegalArgumentException("No such method: " + n);
+            });
+        }
+    }
+
+    private record MethodInfo(
+            String name,
+            Class<?> returnType,
+            Class<?>[] parameterTypes
+    ) {
+
+        public @NotNull String descriptor() {
+            var sb = new StringBuilder("(");
+            for (var param : parameterTypes)
+                sb.append(AsmUtil.toDescriptor(param));
+            sb.append(')');
+            sb.append(AsmUtil.toDescriptor(returnType));
+            return sb.toString();
+        }
+
     }
 
     private static @NotNull String getClassName(@NotNull Class<?> clazz) {

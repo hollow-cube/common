@@ -1,12 +1,6 @@
 package net.hollowcube.mql.util;
 
 import org.intellij.lang.annotations.Language;
-import org.jetbrains.annotations.NotNull;
-
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 
 public final class StringUtil {
     private StringUtil() {}
@@ -16,5 +10,12 @@ public final class StringUtil {
 
     public static String camelCaseToSnakeCase(String str) {
         return str.replaceAll(CAMEL_TO_SNAKE_CASE_REGEX, CAMEL_TO_SNAKE_CASE_REPLACEMENT).toLowerCase();
+    }
+
+    public static String snakeCaseToCamelCase(String str) {
+        while (str.contains("_")) {
+            str = str.replaceFirst("_[a-z]", String.valueOf(Character.toUpperCase(str.charAt(str.indexOf("_") + 1))));
+        }
+        return str;
     }
 }

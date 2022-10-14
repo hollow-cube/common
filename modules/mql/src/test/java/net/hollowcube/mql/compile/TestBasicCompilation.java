@@ -1,5 +1,6 @@
 package net.hollowcube.mql.compile;
 
+import net.hollowcube.mql.foreign.Query;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.objectweb.asm.ClassReader;
@@ -19,15 +20,15 @@ public class TestBasicCompilation {
 
     @Test
     public void singleNumber() {
-        check("0", """
+        check0("0", """
                 DCONST_0
                 DRETURN
                 """);
-        check("1", """
+        check0("1", """
                 DCONST_1
                 DRETURN
                 """);
-        check("1.234", """
+        check0("1.234", """
                 LDC 1.234
                 DRETURN
                 """);
@@ -35,7 +36,7 @@ public class TestBasicCompilation {
 
     @Test
     public void simpleAddition() {
-        check("1 + 1", """
+        check0("1 + 1", """
                 DCONST_1
                 DCONST_1
                 DADD
@@ -43,8 +44,48 @@ public class TestBasicCompilation {
                 """);
     }
 
-    private void check(@NotNull String source, @NotNull String expected) {
-        var compiler = new MqlCompiler<>(Object.class, Object.class);
+    @Test
+    public void callQueryNoArgs() {
+        class TestQuery {
+            @Query
+            public double testValue() {
+                return 1.234;
+            }
+        }
+
+        var script = "q.test_value";
+        var expected = """
+                ALOAD 1
+                INVOKEVIRTUAL net/hollowcube/mql/compile/TestBasicCompilation$1TestQuery.testValue ()D
+                DRETURN
+                """;
+        check(TestQuery.class, Object.class, script, expected);
+    }
+
+    @Test
+    public void callQueryReturnTypeCoercion() {
+        class TestQuery {
+            @Query
+            public boolean testValue() {
+                return true;
+            }
+        }
+
+        var script = "q.test_value";
+        var expected = """
+                ALOAD 1
+                INVOKEVIRTUAL net/hollowcube/mql/compile/TestBasicCompilation$1TestQuery.testValue ()D
+                DRETURN
+                """;
+        check(TestQuery.class, Object.class, script, expected);
+    }
+
+    private void check0(@NotNull String source, @NotNull String expected) {
+        check(Object.class, Object.class, source, expected);
+    }
+
+    private void check(Class<?> queryClass, Class<?> contextClass, @NotNull String source, @NotNull String expected) {
+        var compiler = new MqlCompiler<>(queryClass, contextClass);
         byte[] bytecode = compiler.compileBytecode(source);
 
         var str = prettyPrintEvalMethod(bytecode);
