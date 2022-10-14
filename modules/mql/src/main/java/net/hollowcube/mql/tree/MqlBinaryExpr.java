@@ -22,21 +22,7 @@ public record MqlBinaryExpr(
 
     @Override
     public MqlValue evaluate(@NotNull MqlScope scope) {
-        MqlNumberValue lhsEval;
-
-        var lhsVal = lhs().evaluate(scope);
-
-        if (lhsVal instanceof MqlNumberValue) {
-            lhsEval = lhsVal.cast(MqlNumberValue.class);
-        } else if (lhsVal instanceof MqlCallable f) {
-            if (((MqlAccessExpr)lhs).body() == null) {
-                lhsEval = lhsVal.cast(MqlNumberValue.class);
-            } else
-                lhsEval = f.call(List.of(((MqlAccessExpr)lhs).body().evaluate(scope))).cast(MqlNumberValue.class);;
-        } else {
-            throw new RuntimeException("lhs is not a number or foreign function");
-        }
-
+        MqlNumberValue lhsEval = lhs().evaluate(scope).cast(MqlNumberValue.class);
         MqlNumberValue rhsEval = rhs().evaluate(scope).cast(MqlNumberValue.class);
 
         return switch (operator()) {

@@ -13,14 +13,12 @@ public interface MqlVisitor<P, R> {
 
     default R visitRefExpr(@NotNull MqlIdentExpr expr, P p) { return defaultValue(); }
 
-
-
+    default R visitArgListExpr(MqlArgListExpr mqlArgListExpr, P p) { return defaultValue(); };
 
     default R visit(@NotNull MqlExpr expr, P p) {
         return expr.visit(this, p);
     }
 
     R defaultValue();
-
 }
 // @formatter:on

@@ -2,6 +2,7 @@ package net.hollowcube.mql.foreign;
 
 import net.hollowcube.mql.runtime.MqlRuntimeError;
 import net.hollowcube.mql.runtime.MqlScope;
+import net.hollowcube.mql.tree.MqlArgListExpr;
 import net.hollowcube.mql.util.StringUtil;
 import net.hollowcube.mql.value.MqlCallable;
 import net.hollowcube.mql.value.MqlValue;
@@ -48,7 +49,7 @@ public class MqlForeignFunctions {
 
             // 0 arg functions do not need an explicit call
             if (function.arity() == 0)
-                return function.call(List.of());
+                return function.call(new MqlArgListExpr(List.of()), null);
             return function;
         };
     }
@@ -132,20 +133,20 @@ public class MqlForeignFunctions {
         }
 
         @Override
-        public @NotNull MqlValue call(@NotNull List<MqlValue> args) {
-            if (args.size() != parameterTypes.length) {
+        public @NotNull MqlValue call(@NotNull MqlArgListExpr argList, MqlScope scope) {
+            if (argList.args().size() != parameterTypes.length) {
                 //todo mql exception
-                throw new IllegalArgumentException("Expected " + parameterTypes.length + " arguments, got " + args.size());
+                throw new IllegalArgumentException("Expected " + parameterTypes.length + " arguments, got " + argList.args().size());
             }
 
-            Object[] javaArgs = new Object[args.size()];
-            for (int i = 0; i < args.size(); i++) {
-                javaArgs[i] = MqlForeignTypes.fromMql(args.get(i), parameterTypes[i]);
+            Object[] javaArgs = new Object[argList.args().size()];
+            for (int i = 0; i < argList.args().size(); i++) {
+                javaArgs[i] = MqlForeignTypes.fromMql(argList.args().get(i).evaluate(scope), parameterTypes[i]);
             }
 
             boolean isVoid = returnType == void.class;
             if (isVoid) {
-                switch (args.size()) {
+                switch (argList.args().size()) {
                     case 0 -> handle.accept0V();
                     case 1 -> handle.accept1V(javaArgs[0]);
                     case 2 -> handle.accept2V(javaArgs[0], javaArgs[1]);
@@ -158,7 +159,7 @@ public class MqlForeignFunctions {
                     case 9 -> handle.accept9V(javaArgs[0], javaArgs[1], javaArgs[2], javaArgs[3], javaArgs[4], javaArgs[5], javaArgs[6], javaArgs[7], javaArgs[8]);
                 }
             } else {
-                Object result = switch (args.size()) {
+                Object result = switch (argList.args().size()) {
                     case 0 -> handle.accept0R();
                     case 1 -> handle.accept1R(javaArgs[0]);
                     case 2 -> handle.accept2R(javaArgs[0], javaArgs[1]);

@@ -39,6 +39,22 @@ public class MqlPrinter implements MqlVisitor<Void, String> {
     }
 
     @Override
+    public String visitArgListExpr(@NotNull MqlArgListExpr expr, Void unused) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("(");
+
+        for (int i = 0; i < expr.args().size(); i++) {
+            sb.append(visit(expr.args().get(i), null));
+            if (i != expr.args().size() - 1) {
+                sb.append(" ");
+            }
+        }
+
+        sb.append(")");
+        return sb.toString();
+    }
+
+    @Override
     public String defaultValue() {
         return "##Error";
     }

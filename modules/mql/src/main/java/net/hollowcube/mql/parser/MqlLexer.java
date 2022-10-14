@@ -45,7 +45,7 @@ public class MqlLexer {
     }
 
     public @NotNull String span(@NotNull MqlToken token) {
-        return source.substring(start, cursor);
+        return source.substring(start, cursor).strip();
     }
 
     private void consumeWhitespace() {
@@ -91,6 +91,7 @@ public class MqlLexer {
             case '.' -> MqlToken.Type.DOT;
             case '(' -> MqlToken.Type.LPAREN;
             case ')' -> MqlToken.Type.RPAREN;
+            case ',' -> MqlToken.Type.COMMA;
             default -> throw new MqlParseError(
                     String.format("unexpected token '%s' at %d.", c, cursor));
             // @formatter:on

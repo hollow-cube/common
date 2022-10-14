@@ -4,6 +4,9 @@ import net.hollowcube.mql.tree.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class MqlParser {
     private final MqlLexer lexer;
 
@@ -36,7 +39,7 @@ public class MqlParser {
 
                     var peek = lexer.peek();
                     if (peek != null && peek.type() == MqlToken.Type.LPAREN)
-                        yield new MqlAccessExpr(lhs, ident.value(), expr(op.rbp));
+                        yield new MqlAccessExpr(lhs, ident.value(), (MqlArgListExpr) expr(op.rbp));
 
                     yield(new MqlAccessExpr(lhs, ident.value(), null));
                 }
@@ -56,10 +59,28 @@ public class MqlParser {
             case NUMBER -> new MqlNumberExpr(Double.parseDouble(lexer.span(token)));
             case IDENT -> new MqlIdentExpr(lexer.span(token));
             case LPAREN -> {
-                var expr = expr(0);
-                if (lexer.next().type() != MqlToken.Type.RPAREN)
-                    throw new MqlParseError("expected ')'");
-                yield expr;
+                var res = expr(0);
+                var next = lexer.next();
+
+                if (next != null && next.type() == MqlToken.Type.COMMA) {
+                    List<MqlExpr> args = new ArrayList<>();
+                    args.add(res);
+
+                    while (next.type() == MqlToken.Type.COMMA) {
+                        args.add(expr(0));
+                        next = lexer.next();
+                    }
+
+                    if (next.type() != MqlToken.Type.RPAREN)
+                        throw new MqlParseError("expected ')'");
+
+                    yield new MqlArgListExpr(args);
+                } else {
+                    if (next.type() != MqlToken.Type.RPAREN)
+                        throw new MqlParseError("expected ')'");
+
+                    yield res;
+                }
             }
             //todo better error handling
             default -> throw new MqlParseError("unexpected token " + token);
