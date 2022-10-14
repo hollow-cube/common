@@ -74,7 +74,8 @@ public class TestBasicCompilation {
         var script = "q.test_value";
         var expected = """
                 ALOAD 1
-                INVOKEVIRTUAL net/hollowcube/mql/compile/TestBasicCompilation$1TestQuery.testValue ()D
+                INVOKEVIRTUAL net/hollowcube/mql/compile/TestBasicCompilation$2TestQuery.testValue ()Z
+                INVOKESTATIC net/hollowcube/mql/compile/MqlRuntime.boolToDouble (Z)D
                 DRETURN
                 """;
         check(TestQuery.class, Object.class, script, expected);

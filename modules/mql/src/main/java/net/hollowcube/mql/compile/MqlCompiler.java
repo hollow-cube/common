@@ -146,7 +146,10 @@ public final class MqlCompiler<_Query, _Context> {
                 method.visitVarInsn(ALOAD, 1); // query parameter
                 method.visitMethodInsn(INVOKEVIRTUAL, queryClass.name(), methodName, methodInfo.descriptor(), false);
 
-                if (methodInfo.returnType() == boolean.class)
+                // Convert boolean if necessary
+                if (methodInfo.returnType() == boolean.class) {
+                    method.visitMethodInsn(INVOKESTATIC, getClassName(MqlRuntime.class), "boolToDouble", "(Z)D", false);
+                }
             }
             return null;
         }
