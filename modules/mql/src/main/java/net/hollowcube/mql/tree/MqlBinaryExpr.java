@@ -1,7 +1,7 @@
 package net.hollowcube.mql.tree;
 
-import net.hollowcube.mql.foreign.MqlForeignFunctions;
 import net.hollowcube.mql.runtime.MqlScope;
+import net.hollowcube.mql.value.MqlCallable;
 import net.hollowcube.mql.value.MqlNumberValue;
 import net.hollowcube.mql.value.MqlValue;
 import org.jetbrains.annotations.NotNull;
@@ -28,7 +28,7 @@ public record MqlBinaryExpr(
 
         if (lhsVal instanceof MqlNumberValue) {
             lhsEval = lhsVal.cast(MqlNumberValue.class);
-        } else if (lhsVal instanceof MqlForeignFunctions.ForeignCallable f) {
+        } else if (lhsVal instanceof MqlCallable f) {
             if (((MqlAccessExpr)lhs).body() == null) {
                 lhsEval = lhsVal.cast(MqlNumberValue.class);
             } else
