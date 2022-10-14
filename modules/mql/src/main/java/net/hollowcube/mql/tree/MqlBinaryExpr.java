@@ -29,7 +29,10 @@ public record MqlBinaryExpr(
         if (lhsVal instanceof MqlNumberValue) {
             lhsEval = lhsVal.cast(MqlNumberValue.class);
         } else if (lhsVal instanceof MqlForeignFunctions.ForeignCallable f) {
-            lhsEval = f.call(List.of(((MqlAccessExpr)lhs).body().evaluate(scope))).cast(MqlNumberValue.class);;
+            if (((MqlAccessExpr)lhs).body() == null) {
+                lhsEval = lhsVal.cast(MqlNumberValue.class);
+            } else
+                lhsEval = f.call(List.of(((MqlAccessExpr)lhs).body().evaluate(scope))).cast(MqlNumberValue.class);;
         } else {
             throw new RuntimeException("lhs is not a number or foreign function");
         }
