@@ -3,6 +3,8 @@ package net.hollowcube.mql.compile;
 import net.hollowcube.mql.parser.MqlParser;
 import net.hollowcube.mql.tree.*;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.TestOnly;
+import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
@@ -29,6 +31,11 @@ public class MqlCompiler<_Query, _Context> {
     // Public API
 
     public @NotNull MqlScript<_Query, _Context> compile(@NotNull String source) {
+        throw new RuntimeException("not implemented");
+    }
+
+    @TestOnly
+    public byte[] compileBytecode(@NotNull String source) {
         String sourceHash = Integer.toHexString(source.hashCode());
         // Could cache based on the hash if compiling many times over is a valid use case, but I don't think it is.
 
@@ -39,7 +46,7 @@ public class MqlCompiler<_Query, _Context> {
         String className = "mql$" + sourceHash;
         ClassWriter scriptClass = new ClassWriter(ClassWriter.COMPUTE_MAXS);
         var sig = String.format("L%s<%s%s>;", getClassName(MqlScript.class), queryClass.descriptor(), contextClass.descriptor());
-        scriptClass.visit(V17, ACC_PUBLIC | ACC_FINAL, className, sig, getClassName(Object.class), new String[]{AsmUtil.toName(MqlScript.class)});
+        scriptClass.visit(V17, ACC_PUBLIC | ACC_FINAL | ACC_SYNTHETIC, className, sig, getClassName(Object.class), new String[]{AsmUtil.toName(MqlScript.class)});
 
         // Generate required synthetics
         generateSynthetics(className, scriptClass);
@@ -55,10 +62,7 @@ public class MqlCompiler<_Query, _Context> {
         // Finish the class and return it
         scriptClass.visitEnd();
 
-        byte[] bytecode = scriptClass.toByteArray();
-        //todo load class and return it
-
-        throw new RuntimeException("not implemented");
+        return scriptClass.toByteArray();
     }
 
     // Internal helpers
