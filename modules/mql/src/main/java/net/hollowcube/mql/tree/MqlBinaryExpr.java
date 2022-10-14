@@ -22,14 +22,14 @@ public record MqlBinaryExpr(
 
     @Override
     public MqlValue evaluate(@NotNull MqlScope scope) {
-        MqlNumberValue lhsEval = lhs().evaluate(scope).cast(MqlNumberValue.class);
-        MqlNumberValue rhsEval = rhs().evaluate(scope).cast(MqlNumberValue.class);
+        MqlNumberValue lhs = lhs().evaluate(scope).cast(MqlNumberValue.class);
+        MqlNumberValue rhs = rhs().evaluate(scope).cast(MqlNumberValue.class);
 
         return switch (operator()) {
-            case PLUS -> new MqlNumberValue(lhsEval.value() + rhsEval.value());
-            case MINUS -> new MqlNumberValue(lhsEval.value() - rhsEval.value());
-            case DIV -> new MqlNumberValue(lhsEval.value() / rhsEval.value());
-            case MUL -> new MqlNumberValue(lhsEval.value() * rhsEval.value());
+            case PLUS -> new MqlNumberValue(lhs.value() + rhs.value());
+            case MINUS -> new MqlNumberValue(lhs.value() - rhs.value());
+            case DIV -> new MqlNumberValue(lhs.value() / rhs.value());
+            case MUL -> new MqlNumberValue(lhs.value() * rhs.value());
         };
     }
 
