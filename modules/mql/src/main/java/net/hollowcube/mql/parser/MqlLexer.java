@@ -89,6 +89,8 @@ public class MqlLexer {
             case '*' -> MqlToken.Type.MUL;
             case '/' -> MqlToken.Type.DIV;
             case '.' -> MqlToken.Type.DOT;
+            case '(' -> MqlToken.Type.LPAREN;
+            case ')' -> MqlToken.Type.RPAREN;
             default -> throw new MqlParseError(
                     String.format("unexpected token '%s' at %d.", c, cursor));
             // @formatter:on
