@@ -5,9 +5,9 @@ import org.jetbrains.annotations.NotNull;
 record MqlToken(@NotNull Type type, int start, int end) {
 
     enum Type {
-        PLUS, MINUS, MUL, DIV,
+        PLUS, MINUS, STAR, SLASH,
         LPAREN, RPAREN,
-        DOT, COMMA,
+        DOT, COMMA, COLON, QUESTION, QUESTIONQUESTION,
         NUMBER, IDENT;
     }
 

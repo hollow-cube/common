@@ -4,7 +4,7 @@ import net.hollowcube.mql.runtime.MqlScope;
 import net.hollowcube.mql.value.MqlValue;
 import org.jetbrains.annotations.NotNull;
 
-public sealed interface MqlExpr permits MqlAccessExpr, MqlArgListExpr, MqlBinaryExpr, MqlIdentExpr, MqlNumberExpr {
+public sealed interface MqlExpr permits MqlAccessExpr, MqlArgListExpr, MqlBinaryExpr, MqlIdentExpr, MqlNumberExpr, MqlUnaryExpr, MqlTernaryExpr {
 
     MqlValue evaluate(@NotNull MqlScope scope);
 

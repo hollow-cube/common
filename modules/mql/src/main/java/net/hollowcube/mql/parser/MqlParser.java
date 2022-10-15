@@ -22,8 +22,26 @@ public class MqlParser {
         MqlExpr lhs = lhs();
 
         while (true) {
-            InfixOp op = infixOp();
+            Operator op = operator();
             if (op == null) break;
+
+            var postfixBindingPower = op.postfixBindingPower();
+            if (postfixBindingPower != -1) {
+                if (postfixBindingPower < minBindingPower) break;
+                lexer.next(); // Operator token
+
+                lhs = switch (op) {
+                    case TERNARY -> {
+                        var trueExpr = expr(0);
+                        lexer.expect(MqlToken.Type.COLON);
+                        var falseExpr = expr(postfixBindingPower);
+                        yield new MqlTernaryExpr(lhs, trueExpr, falseExpr);
+                    }
+                    default -> throw new IllegalStateException("Unexpected value: " + op);
+                };
+
+                continue;
+            }
 
             // Stop if operator left binding power is less than the current min
             if (op.lbp < minBindingPower) break;
@@ -67,6 +85,10 @@ public class MqlParser {
         return switch (token.type()) {
             case NUMBER -> new MqlNumberExpr(Double.parseDouble(lexer.span(token)));
             case IDENT -> new MqlIdentExpr(lexer.span(token));
+            case MINUS -> {
+                var rhs = expr(Operator.MINUS.prefixBindingPower());
+                yield new MqlUnaryExpr(MqlUnaryExpr.Op.NEGATE, rhs);
+            }
             case LPAREN -> {
                 var res = expr(0);
                 var next = lexer.next();
@@ -80,13 +102,11 @@ public class MqlParser {
                         next = lexer.next();
                     }
 
-                    if (next.type() != MqlToken.Type.RPAREN)
-                        throw new MqlParseError("expected ')'");
+                    lexer.expect(MqlToken.Type.RPAREN);
 
                     yield new MqlArgListExpr(args);
                 } else {
-                    if (next.type() != MqlToken.Type.RPAREN)
-                        throw new MqlParseError("expected ')'");
+                    lexer.expect(MqlToken.Type.RPAREN);
 
                     yield res;
                 }
@@ -96,35 +116,54 @@ public class MqlParser {
         };
     }
 
-    private @Nullable InfixOp infixOp() {
+    private MqlParser.@Nullable Operator operator() {
         MqlToken token = lexer.peek();
         if (token == null) return null;
         return switch (token.type()) {
-            case PLUS -> InfixOp.PLUS;
-            case MINUS -> InfixOp.MINUS;
-            case DIV -> InfixOp.DIV;
-            case MUL -> InfixOp.MUL;
-            case DOT -> InfixOp.MEMBER_ACCESS;
+            case PLUS -> Operator.PLUS;
+            case MINUS -> Operator.MINUS;
+            case SLASH -> Operator.DIV;
+            case STAR -> Operator.MUL;
+            case DOT -> Operator.MEMBER_ACCESS;
+            case QUESTION -> Operator.TERNARY;
+            case QUESTIONQUESTION -> Operator.NULL_COALESCE;
             default -> null;
         };
     }
 
-    private enum InfixOp {
+    private enum Operator {
+        NULL_COALESCE(5, 6, MqlBinaryExpr.Op.NULL_COALESCE),
         PLUS(25, 26, MqlBinaryExpr.Op.PLUS),
         MINUS(25, 26, MqlBinaryExpr.Op.MINUS),
         DIV(27, 28, MqlBinaryExpr.Op.DIV),
         MUL(27, 28, MqlBinaryExpr.Op.MUL),
 
-        MEMBER_ACCESS(35, 36, null);
+        MEMBER_ACCESS(35, 36, null),
+
+        TERNARY(0, 0, null); // Open of a ternary expression (?), only a postfix operator
 
         private final int lbp;
         private final int rbp;
         private final MqlBinaryExpr.Op op;
 
-        InfixOp(int lbp, int rbp, MqlBinaryExpr.Op op) {
+        Operator(int lbp, int rbp, MqlBinaryExpr.Op op) {
             this.lbp = lbp;
             this.rbp = rbp;
             this.op = op;
+        }
+
+        public int prefixBindingPower() {
+            return switch (this) {
+                case MINUS -> 30;
+                default -> -1;
+            };
+        }
+
+        public int postfixBindingPower() {
+            return switch (this) {
+                case TERNARY -> 1;
+                default -> -1;
+            };
         }
     }
 

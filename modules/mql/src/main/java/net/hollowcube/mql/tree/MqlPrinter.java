@@ -13,8 +13,20 @@ public class MqlPrinter implements MqlVisitor<Void, String> {
                     case MINUS -> "-";
                     case MUL -> "*";
                     case DIV -> "/";
+                    case NULL_COALESCE -> "??";
                 },
                 visit(expr.lhs(), null),
+                visit(expr.rhs(), null)
+        );
+    }
+
+    @Override
+    public String visitUnaryExpr(@NotNull MqlUnaryExpr expr, Void unused) {
+        return String.format(
+                "(%s %s)",
+                switch (expr.operator()) {
+                    case NEGATE -> "-";
+                },
                 visit(expr.rhs(), null)
         );
     }
@@ -52,6 +64,16 @@ public class MqlPrinter implements MqlVisitor<Void, String> {
 
         sb.append(")");
         return sb.toString();
+    }
+
+    @Override
+    public String visitTernaryExpr(MqlTernaryExpr expr, Void unused) {
+        return String.format(
+                "(? %s %s %s)",
+                visit(expr.condition(), null),
+                visit(expr.trueCase(), null),
+                visit(expr.falseCase(), null)
+        );
     }
 
     @Override
