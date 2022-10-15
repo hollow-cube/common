@@ -34,7 +34,15 @@ public class TestMqlParser {
                 Arguments.of("basic access",
                         "a.b", "(. a b)"),
                 Arguments.of("access/add precedence",
-                        "a.b + 1", "(+ (. a b) 1.0)")
+                        "a.b + 1", "(+ (. a b) 1.0)"),
+                Arguments.of("normalize case 1", // FAILS
+                        "q.is_alive()", "(. q is_alive)"),
+                Arguments.of("normalize case 2",
+                        "q.is_alive", "(. q is_alive)"),
+
+                // Weird function behaviors
+                Arguments.of("paren turns into a call if given a comma",
+                        "(1, 2)", "(1.0 2.0)")
         );
     }
 }
