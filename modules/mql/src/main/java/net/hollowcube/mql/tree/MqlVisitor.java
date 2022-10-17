@@ -19,6 +19,8 @@ public interface MqlVisitor<P, R> {
 
     default R visitTernaryExpr(MqlTernaryExpr expr, P p) { return defaultValue(); }
 
+    default R visitCallExpr(MqlCallExpr expr, P p) { return defaultValue(); }
+
     default R visit(@NotNull MqlExpr expr, P p) {
         return expr.visit(this, p);
     }

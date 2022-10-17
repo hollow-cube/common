@@ -1,6 +1,5 @@
 package net.hollowcube.mql.foreign;
 
-import net.hollowcube.mql.tree.MqlArgListExpr;
 import net.hollowcube.mql.tree.MqlNumberExpr;
 import net.hollowcube.mql.value.MqlCallable;
 import net.hollowcube.mql.value.MqlValue;
@@ -16,7 +15,6 @@ import static com.google.common.truth.Truth.assertThat;
 public class TestMqlForeignFunctions {
 
     private static final AtomicBoolean test1Called = new AtomicBoolean(false);
-    private static final MqlArgListExpr emptyArgs = new MqlArgListExpr(List.of());
 
     public static void test1() {
         test1Called.set(true);
@@ -27,7 +25,7 @@ public class TestMqlForeignFunctions {
         Method method = getClass().getMethod("test1");
         MqlCallable function = MqlForeignFunctions.createForeign(method, null);
         assertThat(function.arity()).isEqualTo(0);
-        assertThat(function.call(emptyArgs, null)).isEqualTo(MqlValue.NULL);
+        assertThat(function.call(List.of(), null)).isEqualTo(MqlValue.NULL);
         assertThat(test1Called.get()).isTrue();
     }
 
@@ -41,7 +39,7 @@ public class TestMqlForeignFunctions {
     public void singleArgVoidFunction() throws Exception {
         Method method = getClass().getMethod("test2", double.class);
         MqlCallable function = MqlForeignFunctions.createForeign(method, null);
-        MqlValue result = function.call(new MqlArgListExpr(List.of(new MqlNumberExpr(10.5))), null);
+        MqlValue result = function.call(List.of(new MqlNumberExpr(10.5)), null);
 
         assertThat(function.arity()).isEqualTo(1);
         assertThat(result).isEqualTo(MqlValue.NULL);
@@ -56,7 +54,7 @@ public class TestMqlForeignFunctions {
     public void emptyNonVoidFunction() throws Exception {
         Method method = getClass().getMethod("test3");
         MqlCallable function = MqlForeignFunctions.createForeign(method, null);
-        MqlValue result = function.call(emptyArgs, null);
+        MqlValue result = function.call(List.of(), null);
 
         assertThat(function.arity()).isEqualTo(0);
         assertThat(result).isEqualTo(MqlValue.from(10.5));
@@ -70,7 +68,7 @@ public class TestMqlForeignFunctions {
     public void multiParamNonVoidFunction() throws Exception {
         Method method = getClass().getMethod("test4", double.class, double.class);
         MqlCallable function = MqlForeignFunctions.createForeign(method, null);
-        MqlValue result = function.call(new MqlArgListExpr(List.of(new MqlNumberExpr(10.5), new MqlNumberExpr(20.5))), null);
+        MqlValue result = function.call(List.of(new MqlNumberExpr(10.5), new MqlNumberExpr(20.5)), null);
 
         assertThat(function.arity()).isEqualTo(2);
         assertThat(result).isEqualTo(MqlValue.from(31));

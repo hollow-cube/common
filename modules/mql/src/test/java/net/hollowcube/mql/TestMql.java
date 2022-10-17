@@ -182,6 +182,7 @@ public class TestMql {
         var source = "math.sqrt(4)";
 
         var expr = new MqlParser(source).parse();
+
         var scopeImpl = new MqlScopeImpl();
         var vars = new MqlScopeImpl.Mutable();
 
@@ -197,6 +198,7 @@ public class TestMql {
         var source = "math.pow(10, 2) + 1";
 
         var expr = new MqlParser(source).parse();
+
         var scopeImpl = new MqlScopeImpl();
         var vars = new MqlScopeImpl.Mutable();
 
@@ -212,6 +214,7 @@ public class TestMql {
         var source = "math.pow(math.pow(2 + 1, 3), math.pow(3 , 1)) + 1";
 
         var expr = new MqlParser(source).parse();
+
         var scopeImpl = new MqlScopeImpl();
         var vars = new MqlScopeImpl.Mutable();
 
@@ -220,5 +223,21 @@ public class TestMql {
 
         assertTrue(result instanceof MqlNumberValue);
         assertEquals(19684, ((MqlNumberValue) result).value());
+    }
+
+    @Test
+    public void testPI() {
+        var source = "math.pi + 1";
+
+        var expr = new MqlParser(source).parse();
+        var scopeImpl = new MqlScopeImpl();
+        var vars = new MqlScopeImpl.Mutable();
+
+        var scope = new MqlScriptScope(scopeImpl, vars, scopeImpl);
+
+        var result = expr.evaluate(scope);
+
+        assertTrue(result instanceof MqlNumberValue);
+        assertEquals(Math.PI + 1, ((MqlNumberValue) result).value());
     }
 }

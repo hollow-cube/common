@@ -30,7 +30,6 @@ public record MqlBinaryExpr(
             return rhs().evaluate(scope);
         }
 
-
         // The rest use both lhs and rhs always
         MqlNumberValue lhs = lhs().evaluate(scope).cast(MqlNumberValue.class);
         MqlNumberValue rhs = rhs().evaluate(scope).cast(MqlNumberValue.class);

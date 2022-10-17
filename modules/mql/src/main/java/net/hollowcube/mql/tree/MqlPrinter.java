@@ -36,7 +36,7 @@ public class MqlPrinter implements MqlVisitor<Void, String> {
         return String.format(
                 "(. %s %s)",
                 visit(expr.lhs(), null),
-                expr.target()
+                expr.target().value()
         );
     }
 
@@ -73,6 +73,15 @@ public class MqlPrinter implements MqlVisitor<Void, String> {
                 visit(expr.condition(), null),
                 visit(expr.trueCase(), null),
                 visit(expr.falseCase(), null)
+        );
+    }
+
+    @Override
+    public String visitCallExpr(MqlCallExpr expr, Void unused) {
+        return String.format(
+                "(? %s %s)",
+                visit(expr.access(), null),
+                visit(expr.argList(), null)
         );
     }
 

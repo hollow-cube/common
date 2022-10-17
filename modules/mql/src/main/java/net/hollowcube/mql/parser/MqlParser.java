@@ -53,7 +53,7 @@ public class MqlParser {
             lhs = switch (op) {
                 case MEMBER_ACCESS -> {
                     if (!(rhs instanceof MqlIdentExpr ident))
-                        throw new MqlParseError("rhs of member access must be an ident, was " + rhs);
+                        throw new MqlParseError("rhs of member access must be an target, was " + rhs);
 
                     var peek = lexer.peek();
                     if (peek != null && peek.type() == MqlToken.Type.LPAREN) {
@@ -61,14 +61,16 @@ public class MqlParser {
 
                         if (res instanceof MqlArgListExpr args) {
                             // Arg list returned
-                            yield new MqlAccessExpr(lhs, ident.value(), args);
+                            var access = new MqlAccessExpr(lhs, ident);
+                            yield new MqlCallExpr(access, args);
                         } else {
                             // Single param, create list
-                            yield new MqlAccessExpr(lhs, ident.value(), new MqlArgListExpr(List.of(res)));
+                            var access = new MqlAccessExpr(lhs, ident);
+                            yield new MqlCallExpr(access, new MqlArgListExpr(List.of(res)));
                         }
                     }
 
-                    yield(new MqlAccessExpr(lhs, ident.value(), null));
+                    yield(new MqlAccessExpr(lhs, ident));
                 }
                 default -> new MqlBinaryExpr(op.op, lhs, rhs);
             };
@@ -91,15 +93,16 @@ public class MqlParser {
             }
             case LPAREN -> {
                 var res = expr(0);
-                var next = lexer.next();
+                var next = lexer.peek();
 
                 if (next != null && next.type() == MqlToken.Type.COMMA) {
                     List<MqlExpr> args = new ArrayList<>();
                     args.add(res);
 
                     while (next.type() == MqlToken.Type.COMMA) {
+                        lexer.expect(MqlToken.Type.COMMA);
                         args.add(expr(0));
-                        next = lexer.next();
+                        next = lexer.peek();
                     }
 
                     lexer.expect(MqlToken.Type.RPAREN);

@@ -1,6 +1,5 @@
 package net.hollowcube.mql.runtime;
 
-import net.hollowcube.mql.tree.MqlArgListExpr;
 import net.hollowcube.mql.tree.MqlNumberExpr;
 import net.hollowcube.mql.value.MqlCallable;
 import net.hollowcube.mql.value.MqlValue;
@@ -15,7 +14,7 @@ public class TestMqlMath {
     @Test
     public void testForeignMath() {
         MqlValue result = MqlMath.INSTANCE.get("sqrt").cast(MqlCallable.class)
-                .call(new MqlArgListExpr(List.of(new MqlNumberExpr(4))), null);
+                .call(List.of(new MqlNumberExpr(4)), null);
 
         assertThat(result).isEqualTo(MqlValue.from(2));
     }
