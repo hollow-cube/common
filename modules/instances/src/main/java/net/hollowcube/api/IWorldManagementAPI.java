@@ -1,5 +1,11 @@
 package net.hollowcube.api;
 
+import net.hollowcube.WorldManager;
+import net.hollowcube.world.load.WorldLoadResult;
+import net.hollowcube.world.unload.WorldSaveResult;
+
+import java.util.function.Consumer;
+
 public interface IWorldManagementAPI {
     /**
      * Tries to load the specified world.
