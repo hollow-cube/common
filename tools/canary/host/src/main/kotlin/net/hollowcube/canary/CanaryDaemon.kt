@@ -2,13 +2,10 @@ package net.hollowcube.canary
 
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.sync.Mutex
 import net.hollowcube.canary.script.evalToConfiguration
 import net.hollowcube.canary.server.CanaryServer
-import net.hollowcube.canary.test.ContainerTestDescriptor
-import net.hollowcube.canary.test.FunctionTestDescriptor
-import net.hollowcube.canary.test.TestDescriptor
-import net.hollowcube.canary.test.WorldTest
+import net.hollowcube.canary.test.*
 import net.minestom.server.command.builder.Command
 import net.minestom.server.coordinate.Point
 import net.minestom.server.coordinate.Pos
@@ -27,23 +24,41 @@ import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.functions
 
 object CanaryDaemon {
-    private lateinit var server: CanaryServer
+    lateinit var server: CanaryServer
 
     private var testRoot: TestDescriptor? = null
 
     private var lastPos = Vec(5.0, 0.0, 0.0)
 
+    val lock = Mutex()
+
     fun start() {
         server = CanaryServer()
 
         val testDir = Path.of("/Users/matt/dev/projects/mmo/common/tools/canary/host/src/test/java/")
-        testRoot = readTestsRecursive(testDir)
+        testRoot = DirectoryTestDescriptor(testDir).also { it.update() }
 
         val run = Command("run")
         run.setDefaultExecutor { sender, _ ->
-            runAll()
+            val locked = lock.tryLock()
+            if (!locked) {
+                sender.sendMessage("Already running tests")
+                return@setDefaultExecutor
+            }
+
+            try {
+                runAll()
+            } finally {
+                lock.unlock()
+            }
         }
         server.process.command().register(run)
+
+        val reload = Command("reload")
+        reload.setDefaultExecutor { sender, _ ->
+            testRoot!!.update()
+        }
+        server.process.command().register(reload)
     }
 
     fun runAll() {
@@ -61,7 +76,9 @@ object CanaryDaemon {
     private fun readTestsRecursive(path: Path): TestDescriptor? {
         println(path)
         if (path.isDirectory()) {
-            val children = Files.walk(path).use { s -> s.filter { path != it }.map(::readTestsRecursive).filter(Objects::nonNull).map { it!! }.toList() }
+            val children = Files.walk(path).use { s ->
+                s.filter { path != it }.map(::readTestsRecursive).filter(Objects::nonNull).map { it!! }.toList()
+            }
             return ContainerTestDescriptor(path.fileName.toString(), children)
         } else {
             val fileName = path.fileName.toString()
@@ -79,18 +96,20 @@ object CanaryDaemon {
                 }
                 //todo check parameters
 
-                val timeout = annotation.timeout
-                tests.add(FunctionTestDescriptor(
+                val test = FunctionTestDescriptor2(
                     name = name,
-                    timeout = timeout,
-                    instance = scriptInstance,
-                    fn = func,
-                ))
-
-                val wt = WorldTest(lastPos.add(0.0, 40.0, 0.0), Vec(5.0, 5.0, 5.0))
+                    config = TestConfig(
+                        timeout = annotation.timeout,
+                        instance = scriptInstance,
+                        fn = func,
+                    ),
+                    lastPos.add(0.0, 40.0, 0.0)
+                )
                 lastPos = lastPos.add(Vec(0.0, 0.0, 10.0))
+                tests.add(test)
+
                 GlobalScope.launch {
-                    wt.createStructure(server.testInstance)
+                    test.createStructure(server.testInstance)
                 }
             }
 
@@ -105,20 +124,21 @@ object CanaryDaemon {
                     executeTestRecursive("$path/${test.name}", child)
                 }
             }
-            is FunctionTestDescriptor -> {
+
+            is FunctionTestDescriptor2 -> {
                 val entities = mutableListOf<Entity>()
                 val env = object : Test.Env {
                     override fun <T : Point> global(point: T): T {
-                        TODO("Not yet implemented")
+                        return point.add(test.origin) as T
                     }
 
                     override fun <T : Point> local(point: T): T {
-                        TODO("Not yet implemented")
+                        return point.sub(test.origin) as T
                     }
 
                     override suspend fun spawnEntity(entity: Entity, pos: Pos) = suspendCoroutine { cont ->
                         entities.add(entity)
-                        entity.setInstance(server.testInstance, pos).thenRun {
+                        entity.setInstance(server.testInstance, global(pos)).thenRun {
                             cont.resumeWith(Result.success(Unit))
                         }
                     }
@@ -126,19 +146,21 @@ object CanaryDaemon {
                     override suspend fun expect(condition: () -> Boolean) = suspendCoroutine { cont ->
                         server.testInstance.eventNode().addListener(
                             EventListener.builder(InstanceTickEvent::class.java)
-                            .expireWhen {
-                                if (condition()) {
-                                    cont.resume(Unit)
-                                    true
-                                } else false
-                            }
-                            .build())
+                                .expireWhen {
+                                    //todo should fail test immediately if an entity exits the test area
+                                    if (condition()) {
+                                        cont.resume(Unit)
+                                        true
+                                    } else false
+                                }
+                                .build())
                     }
                 }
 
                 val name = "$path/${test.name}"
                 println("RUN $name")
-                test.fn.callSuspend(test.instance, env)
+                test.config.fn.callSuspend(test.config.instance, env)
+                test.setState(server.testInstance, State.PASSED)
                 println("DONE $name")
                 for (entity in entities) {
                     entity.remove()
@@ -146,8 +168,6 @@ object CanaryDaemon {
             }
         }
     }
-
-
 
 
     /*

@@ -1,3 +1,5 @@
+@file:JvmName("Main")
+
 package net.hollowcube.canary
 
 import kotlinx.coroutines.runBlocking

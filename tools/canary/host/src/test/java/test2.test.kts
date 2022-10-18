@@ -12,7 +12,7 @@ suspend fun `my entity test`(t: Test.Env) {
 
     val entity = LivingEntity(EntityType.VILLAGER)
     entity.health = entity.maxHealth
-    t.spawnEntity(entity, Pos(0.0, 42.0, 0.0))
+    t.spawnEntity(entity, Pos(0.0, 0.0, 0.0))
     coroutineScope {
         launch {
             delay(100)
@@ -28,4 +28,14 @@ suspend fun `my entity test`(t: Test.Env) {
 @Test
 suspend fun `another test`(t: Test.Env) {
     println("ANOTHER TEST!!!!")
+}
+
+@Test
+suspend fun `third test`(t: Test.Env) {
+    println("THIRD TEST!!!!")
+}
+
+@Test
+suspend fun `fourth test`(t: Test.Env) {
+    println("THIRD TEST!!!!")
 }
