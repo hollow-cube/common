@@ -43,13 +43,19 @@ public class MqlParser {
                             List<MqlExpr> args = new ArrayList<>();
                             var next = lexer.peek();
 
-                            do {
-                                args.add(expr(0));
-                                next = lexer.peek();
-                            } while (next != null && next.type() == MqlToken.Type.COMMA && lexer.next() != null);
+                            System.out.println(next);
 
-                            lexer.expect(MqlToken.Type.RPAREN);
-                            yield new MqlCallExpr(access, new MqlArgListExpr(args));
+                            if (next != null && next.type() != MqlToken.Type.RPAREN) {
+                                do {
+                                    args.add(expr(0));
+                                    next = lexer.peek();
+                                } while (next != null && next.type() == MqlToken.Type.COMMA && lexer.next() != null);
+
+                                lexer.expect(MqlToken.Type.RPAREN);
+                                yield new MqlCallExpr(access, new MqlArgListExpr(args));
+                            }
+
+                            yield lhs;
                         } else {
                             yield lhs;
                         }
