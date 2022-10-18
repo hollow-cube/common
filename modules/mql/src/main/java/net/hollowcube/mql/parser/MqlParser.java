@@ -52,11 +52,8 @@ public class MqlParser {
                                 lexer.expect(MqlToken.Type.RPAREN);
                                 yield new MqlCallExpr(access, new MqlArgListExpr(args));
                             }
-
-                            yield lhs;
-                        } else {
-                            yield lhs;
                         }
+                        yield lhs;
                     }
                     default -> throw new IllegalStateException("Unexpected value: " + op);
                 };
