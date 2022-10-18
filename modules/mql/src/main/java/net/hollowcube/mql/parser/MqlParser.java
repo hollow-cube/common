@@ -39,9 +39,8 @@ public class MqlParser {
                     }
                     case LPAREN -> {
                         if (lhs instanceof MqlAccessExpr access) {
-                            List<MqlExpr> args = new ArrayList<>();
-
                             // Get argument list
+                            List<MqlExpr> args = new ArrayList<>();
                             var next = lexer.peek();
 
                             do {
@@ -50,7 +49,6 @@ public class MqlParser {
                             } while (next != null && next.type() == MqlToken.Type.COMMA && lexer.next() != null);
 
                             lexer.expect(MqlToken.Type.RPAREN);
-
                             yield new MqlCallExpr(access, new MqlArgListExpr(args));
                         } else {
                             yield lhs;
@@ -72,9 +70,8 @@ public class MqlParser {
             lhs = switch (op) {
                 case MEMBER_ACCESS -> {
                     if (!(rhs instanceof MqlIdentExpr ident))
-                        throw new MqlParseError("rhs of member access must be an target, was " + rhs);
-
-                    yield(new MqlAccessExpr(lhs, ident));
+                        throw new MqlParseError("rhs of member access must be an ident, was " + rhs);
+                    yield new MqlAccessExpr(lhs, ident.value());
                 }
                 default -> new MqlBinaryExpr(op.op, lhs, rhs);
             };
@@ -105,7 +102,7 @@ public class MqlParser {
         };
     }
 
-    private MqlParser.@Nullable Operator operator() {
+    private @Nullable Operator operator() {
         MqlToken token = lexer.peek();
         if (token == null) return null;
         return switch (token.type()) {

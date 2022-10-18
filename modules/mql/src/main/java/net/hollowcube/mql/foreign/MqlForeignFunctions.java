@@ -133,21 +133,20 @@ public class MqlForeignFunctions {
         }
 
         @Override
-        public @NotNull MqlValue call(@NotNull List<MqlExpr> exprList, MqlScope scope) {
-            int argListSize = exprList.size();
-            if (argListSize != parameterTypes.length) {
+        public @NotNull MqlValue call(@NotNull List<MqlExpr> args, MqlScope scope) {
+            if (args.size() != parameterTypes.length) {
                 //todo mql exception
-                throw new IllegalArgumentException("Expected " + parameterTypes.length + " arguments, got " + argListSize);
+                throw new IllegalArgumentException("Expected " + parameterTypes.length + " arguments, got " + args.size());
             }
 
-            Object[] javaArgs = new Object[argListSize];
-            for (int i = 0; i < argListSize; i++) {
-                javaArgs[i] = MqlForeignTypes.fromMql(exprList.get(i).evaluate(scope), parameterTypes[i]);
+            Object[] javaArgs = new Object[args.size()];
+            for (int i = 0; i < args.size(); i++) {
+                javaArgs[i] = MqlForeignTypes.fromMql(args.get(i).evaluate(scope), parameterTypes[i]);
             }
 
             boolean isVoid = returnType == void.class;
             if (isVoid) {
-                switch (argListSize) {
+                switch (args.size()) {
                     case 0 -> handle.accept0V();
                     case 1 -> handle.accept1V(javaArgs[0]);
                     case 2 -> handle.accept2V(javaArgs[0], javaArgs[1]);
@@ -160,7 +159,7 @@ public class MqlForeignFunctions {
                     case 9 -> handle.accept9V(javaArgs[0], javaArgs[1], javaArgs[2], javaArgs[3], javaArgs[4], javaArgs[5], javaArgs[6], javaArgs[7], javaArgs[8]);
                 }
             } else {
-                Object result = switch (argListSize) {
+                Object result = switch (args.size()) {
                     case 0 -> handle.accept0R();
                     case 1 -> handle.accept1R(javaArgs[0]);
                     case 2 -> handle.accept2R(javaArgs[0], javaArgs[1]);

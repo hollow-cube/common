@@ -6,12 +6,12 @@ import net.hollowcube.mql.value.MqlValue;
 import org.jetbrains.annotations.NotNull;
 
 public record MqlAccessExpr(
-        @NotNull MqlExpr lhs, MqlIdentExpr target) implements MqlExpr {
+        @NotNull MqlExpr lhs, String target) implements MqlExpr {
 
     @Override
     public MqlValue evaluate(@NotNull MqlScope scope) {
         var lhs = lhs().evaluate(scope).cast(MqlHolder.class);
-        return lhs.get(target.value());
+        return lhs.get(target());
     }
 
     @Override
