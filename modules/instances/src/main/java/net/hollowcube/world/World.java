@@ -3,8 +3,11 @@ package net.hollowcube.world;
 import net.hollowcube.api.IWorld;
 import net.hollowcube.world.creation.TemporaryWorld;
 import net.hollowcube.world.creation.chunkgenerator.ChunkGeneratorType;
+import net.hollowcube.world.unload.WorldSaveResult;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.instance.Instance;
+
+import java.util.function.Consumer;
 
 public class World extends TemporaryWorld implements IWorld {
     private final String id;
