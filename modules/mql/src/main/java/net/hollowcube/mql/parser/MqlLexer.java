@@ -44,8 +44,14 @@ public class MqlLexer {
         return result;
     }
 
+    public void expect(@NotNull MqlToken.Type type) {
+        var next = next();
+        if (next == null || next.type() != type)
+            throw new MqlParseError("Expected " + type + " but got " + next);
+    }
+
     public @NotNull String span(@NotNull MqlToken token) {
-        return source.substring(start, cursor);
+        return source.substring(start, cursor).strip();
     }
 
     private void consumeWhitespace() {
@@ -86,9 +92,18 @@ public class MqlLexer {
             // @formatter:off
             case '+' -> MqlToken.Type.PLUS;
             case '-' -> MqlToken.Type.MINUS;
-            case '*' -> MqlToken.Type.MUL;
-            case '/' -> MqlToken.Type.DIV;
+            case '*' -> MqlToken.Type.STAR;
+            case '/' -> MqlToken.Type.SLASH;
             case '.' -> MqlToken.Type.DOT;
+            case ',' -> MqlToken.Type.COMMA;
+            case '?' -> {
+                if (match('?')) {
+                    yield MqlToken.Type.QUESTIONQUESTION;
+                } else {
+                    yield MqlToken.Type.QUESTION;
+                }
+            }
+            case ':' -> MqlToken.Type.COLON;
             case '(' -> MqlToken.Type.LPAREN;
             case ')' -> MqlToken.Type.RPAREN;
             default -> throw new MqlParseError(

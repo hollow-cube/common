@@ -1,21 +1,19 @@
 package net.hollowcube.mql.tree;
 
 import net.hollowcube.mql.runtime.MqlScope;
-import net.hollowcube.mql.value.MqlHolder;
 import net.hollowcube.mql.value.MqlValue;
 import org.jetbrains.annotations.NotNull;
 
-public record MqlAccessExpr(
-        @NotNull MqlExpr lhs, String target) implements MqlExpr {
+import java.util.List;
 
+public record MqlArgListExpr(List<MqlExpr> args) implements MqlExpr {
     @Override
     public MqlValue evaluate(@NotNull MqlScope scope) {
-        var lhs = lhs().evaluate(scope).cast(MqlHolder.class);
-        return lhs.get(target());
+        return null;
     }
 
     @Override
     public <P, R> R visit(@NotNull MqlVisitor<P, R> visitor, P p) {
-        return visitor.visitAccessExpr(this, p);
+        return visitor.visitArgListExpr(this, p);
     }
 }
