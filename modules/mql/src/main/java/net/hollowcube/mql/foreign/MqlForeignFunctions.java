@@ -2,6 +2,7 @@ package net.hollowcube.mql.foreign;
 
 import net.hollowcube.mql.runtime.MqlRuntimeError;
 import net.hollowcube.mql.runtime.MqlScope;
+import net.hollowcube.mql.tree.MqlExpr;
 import net.hollowcube.mql.util.StringUtil;
 import net.hollowcube.mql.value.MqlCallable;
 import net.hollowcube.mql.value.MqlValue;
@@ -48,7 +49,7 @@ public class MqlForeignFunctions {
 
             // 0 arg functions do not need an explicit call
             if (function.arity() == 0)
-                return function.call(List.of());
+                return function.call(List.of(), null);
             return function;
         };
     }
@@ -132,7 +133,7 @@ public class MqlForeignFunctions {
         }
 
         @Override
-        public @NotNull MqlValue call(@NotNull List<MqlValue> args) {
+        public @NotNull MqlValue call(@NotNull List<MqlExpr> args, MqlScope scope) {
             if (args.size() != parameterTypes.length) {
                 //todo mql exception
                 throw new IllegalArgumentException("Expected " + parameterTypes.length + " arguments, got " + args.size());
@@ -140,7 +141,7 @@ public class MqlForeignFunctions {
 
             Object[] javaArgs = new Object[args.size()];
             for (int i = 0; i < args.size(); i++) {
-                javaArgs[i] = MqlForeignTypes.fromMql(args.get(i), parameterTypes[i]);
+                javaArgs[i] = MqlForeignTypes.fromMql(args.get(i).evaluate(scope), parameterTypes[i]);
             }
 
             boolean isVoid = returnType == void.class;

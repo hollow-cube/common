@@ -1,7 +1,5 @@
 package net.hollowcube.mql.parser;
 
-import net.hollowcube.mql.parser.MqlLexer;
-import net.hollowcube.mql.parser.MqlToken;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -28,7 +26,15 @@ public class TestMqlLexer {
     private static Stream<Arguments> individualSymbols() {
         return Stream.of(
                 Arguments.of("+", MqlToken.Type.PLUS),
+                Arguments.of("-", MqlToken.Type.MINUS),
+                Arguments.of("*", MqlToken.Type.STAR),
+                Arguments.of("/", MqlToken.Type.SLASH),
                 Arguments.of(".", MqlToken.Type.DOT),
+                Arguments.of(",", MqlToken.Type.COMMA),
+                Arguments.of("?", MqlToken.Type.QUESTION),
+                Arguments.of("??", MqlToken.Type.QUESTIONQUESTION),
+                Arguments.of("(", MqlToken.Type.LPAREN),
+                Arguments.of(")", MqlToken.Type.RPAREN),
 
                 Arguments.of("123", MqlToken.Type.NUMBER),
                 Arguments.of("123.", MqlToken.Type.NUMBER),

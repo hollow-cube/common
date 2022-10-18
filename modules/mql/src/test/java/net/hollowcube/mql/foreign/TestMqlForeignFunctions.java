@@ -1,6 +1,6 @@
 package net.hollowcube.mql.foreign;
 
-import net.hollowcube.mql.foreign.MqlForeignFunctions;
+import net.hollowcube.mql.tree.MqlNumberExpr;
 import net.hollowcube.mql.value.MqlCallable;
 import net.hollowcube.mql.value.MqlValue;
 import org.junit.jupiter.api.Test;
@@ -25,7 +25,7 @@ public class TestMqlForeignFunctions {
         Method method = getClass().getMethod("test1");
         MqlCallable function = MqlForeignFunctions.createForeign(method, null);
         assertThat(function.arity()).isEqualTo(0);
-        assertThat(function.call(List.of())).isEqualTo(MqlValue.NULL);
+        assertThat(function.call(List.of(), null)).isEqualTo(MqlValue.NULL);
         assertThat(test1Called.get()).isTrue();
     }
 
@@ -39,7 +39,7 @@ public class TestMqlForeignFunctions {
     public void singleArgVoidFunction() throws Exception {
         Method method = getClass().getMethod("test2", double.class);
         MqlCallable function = MqlForeignFunctions.createForeign(method, null);
-        MqlValue result = function.call(List.of(MqlValue.from(10.5)));
+        MqlValue result = function.call(List.of(new MqlNumberExpr(10.5)), null);
 
         assertThat(function.arity()).isEqualTo(1);
         assertThat(result).isEqualTo(MqlValue.NULL);
@@ -54,7 +54,7 @@ public class TestMqlForeignFunctions {
     public void emptyNonVoidFunction() throws Exception {
         Method method = getClass().getMethod("test3");
         MqlCallable function = MqlForeignFunctions.createForeign(method, null);
-        MqlValue result = function.call(List.of());
+        MqlValue result = function.call(List.of(), null);
 
         assertThat(function.arity()).isEqualTo(0);
         assertThat(result).isEqualTo(MqlValue.from(10.5));
@@ -68,7 +68,7 @@ public class TestMqlForeignFunctions {
     public void multiParamNonVoidFunction() throws Exception {
         Method method = getClass().getMethod("test4", double.class, double.class);
         MqlCallable function = MqlForeignFunctions.createForeign(method, null);
-        MqlValue result = function.call(List.of(MqlValue.from(10.5), MqlValue.from(20.5)));
+        MqlValue result = function.call(List.of(new MqlNumberExpr(10.5), new MqlNumberExpr(20.5)), null);
 
         assertThat(function.arity()).isEqualTo(2);
         assertThat(result).isEqualTo(MqlValue.from(31));
