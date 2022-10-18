@@ -37,6 +37,25 @@ public class MqlParser {
                         var falseExpr = expr(postfixBindingPower);
                         yield new MqlTernaryExpr(lhs, trueExpr, falseExpr);
                     }
+                    case LPAREN -> {
+                        if (lhs instanceof MqlAccessExpr access) {
+                            List<MqlExpr> args = new ArrayList<>();
+
+                            // Get argument list
+                            var next = lexer.peek();
+
+                            do {
+                                args.add(expr(0));
+                                next = lexer.peek();
+                            } while (next != null && next.type() == MqlToken.Type.COMMA && lexer.next() != null);
+
+                            lexer.expect(MqlToken.Type.RPAREN);
+
+                            yield new MqlCallExpr(access, new MqlArgListExpr(args));
+                        } else {
+                            yield lhs;
+                        }
+                    }
                     default -> throw new IllegalStateException("Unexpected value: " + op);
                 };
 
@@ -54,21 +73,6 @@ public class MqlParser {
                 case MEMBER_ACCESS -> {
                     if (!(rhs instanceof MqlIdentExpr ident))
                         throw new MqlParseError("rhs of member access must be an target, was " + rhs);
-
-                    var peek = lexer.peek();
-                    if (peek != null && peek.type() == MqlToken.Type.LPAREN) {
-                        var res = expr(op.rbp);
-
-                        if (res instanceof MqlArgListExpr args) {
-                            // Arg list returned
-                            var access = new MqlAccessExpr(lhs, ident);
-                            yield new MqlCallExpr(access, args);
-                        } else {
-                            // Single param, create list
-                            var access = new MqlAccessExpr(lhs, ident);
-                            yield new MqlCallExpr(access, new MqlArgListExpr(List.of(res)));
-                        }
-                    }
 
                     yield(new MqlAccessExpr(lhs, ident));
                 }
@@ -92,27 +96,9 @@ public class MqlParser {
                 yield new MqlUnaryExpr(MqlUnaryExpr.Op.NEGATE, rhs);
             }
             case LPAREN -> {
-                var res = expr(0);
-                var next = lexer.peek();
-
-                if (next != null && next.type() == MqlToken.Type.COMMA) {
-                    List<MqlExpr> args = new ArrayList<>();
-                    args.add(res);
-
-                    while (next.type() == MqlToken.Type.COMMA) {
-                        lexer.expect(MqlToken.Type.COMMA);
-                        args.add(expr(0));
-                        next = lexer.peek();
-                    }
-
-                    lexer.expect(MqlToken.Type.RPAREN);
-
-                    yield new MqlArgListExpr(args);
-                } else {
-                    lexer.expect(MqlToken.Type.RPAREN);
-
-                    yield res;
-                }
+                var expr = expr(0);
+                lexer.expect(MqlToken.Type.RPAREN);
+                yield expr;
             }
             //todo better error handling
             default -> throw new MqlParseError("unexpected token " + token);
@@ -130,6 +116,7 @@ public class MqlParser {
             case DOT -> Operator.MEMBER_ACCESS;
             case QUESTION -> Operator.TERNARY;
             case QUESTIONQUESTION -> Operator.NULL_COALESCE;
+            case LPAREN -> Operator.LPAREN;
             default -> null;
         };
     }
@@ -140,9 +127,9 @@ public class MqlParser {
         MINUS(25, 26, MqlBinaryExpr.Op.MINUS),
         DIV(27, 28, MqlBinaryExpr.Op.DIV),
         MUL(27, 28, MqlBinaryExpr.Op.MUL),
+        LPAREN(30, 30, null),
 
         MEMBER_ACCESS(35, 36, null),
-
         TERNARY(0, 0, null); // Open of a ternary expression (?), only a postfix operator
 
         private final int lbp;
@@ -165,6 +152,7 @@ public class MqlParser {
         public int postfixBindingPower() {
             return switch (this) {
                 case TERNARY -> 1;
+                case LPAREN -> 2;
                 default -> -1;
             };
         }
