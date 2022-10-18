@@ -43,8 +43,6 @@ public class MqlParser {
                             List<MqlExpr> args = new ArrayList<>();
                             var next = lexer.peek();
 
-                            System.out.println(next);
-
                             if (next != null && next.type() != MqlToken.Type.RPAREN) {
                                 do {
                                     args.add(expr(0));
