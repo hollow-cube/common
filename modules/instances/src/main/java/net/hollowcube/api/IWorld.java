@@ -1,5 +1,9 @@
 package net.hollowcube.api;
 
+import net.hollowcube.world.unload.WorldSaveResult;
+
+import java.util.function.Consumer;
+
 public interface IWorld extends ITemporaryWorld {
     /**
      * Saves this world.
