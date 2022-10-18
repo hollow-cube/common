@@ -46,8 +46,8 @@ public class TestMqlParser {
                         "a.b ?? 1", "(?? (. a b) 1.0)"),
                 Arguments.of("null coalesce precedence 2",
                         "1 + 2 ?? 1", "(?? (+ 1.0 2.0) 1.0)"), //todo is this correct? should it be (+ 1.0 (?? 2.0 1.0))?
-//                Arguments.of("normalize case 1", // FAILS
-//                        "q.is_alive()", "(. q is_alive)"),
+                Arguments.of("normalize case 1",
+                        "q.is_alive()", "(. q is_alive)"),
                 Arguments.of("normalize case 2",
                         "q.is_alive", "(. q is_alive)"),
                 Arguments.of("single ternary simple",
@@ -56,18 +56,6 @@ public class TestMqlParser {
                         "1 ? 2 : 3 ? 4 : 5", "(? 1.0 2.0 (? 3.0 4.0 5.0))"),
                 Arguments.of("ternary add precedence",
                         "1 ? 2 + 3 : 4", "(? 1.0 (+ 2.0 3.0) 4.0)")
-
-                // Weird function behaviors
-//                Arguments.of("paren turns into a call if given a comma",
-//                        "(1, 2)", "(1.0 2.0)")
         );
     }
-
-//    @Test
-//    public void abc() {
-//        var expr = new MqlParser("1 ? 2 : 3").parse();
-//        var actual = new MqlPrinter().visit(expr, null);
-//
-//        assertEquals("(?? (. a b) 1.0)", actual);
-//    }
 }
