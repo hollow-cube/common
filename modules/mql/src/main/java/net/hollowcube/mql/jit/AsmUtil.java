@@ -1,14 +1,17 @@
 package net.hollowcube.mql.jit;
 
-import net.hollowcube.mql.compile.MqlScript;
 import org.jetbrains.annotations.NotNull;
-import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.util.TraceClassVisitor;
+import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.tree.InsnList;
+import org.objectweb.asm.util.Textifier;
+import org.objectweb.asm.util.TraceMethodVisitor;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.lang.reflect.Method;
 
 public final class AsmUtil {
     private AsmUtil() {}
@@ -36,8 +39,26 @@ public final class AsmUtil {
         return "L" + toName(clazz) + ";";
     }
 
+    public static @NotNull String toDescriptor(@NotNull Method method) {
+        var sb = new StringBuilder("(");
+        for (var param : method.getParameterTypes()) {
+            sb.append(toDescriptor(param));
+        }
+        sb.append(")");
+        sb.append(toDescriptor(method.getReturnType()));
+        return sb.toString();
+    }
+
     public static @NotNull String toName(@NotNull Class<?> clazz) {
         return clazz.getName().replace(".", "/");
+    }
+
+    public static void convert(Class<?> to, Class<?> from, MethodVisitor mv) {
+        if (to.isAssignableFrom(from)) {
+            return;
+        }
+        //todo handle other conversions
+        throw new UnsupportedOperationException("Cannot convert from " + from + " to " + to);
     }
 
     @SuppressWarnings("all")
@@ -50,13 +71,13 @@ public final class AsmUtil {
             java.lang.reflect.Method method =
                     cls.getDeclaredMethod(
                             "defineClass",
-                            new Class[] { String.class, byte[].class, int.class, int.class });
+                            new Class[]{String.class, byte[].class, int.class, int.class});
 
             // Protected method invocation.
             method.setAccessible(true);
             try {
                 Object[] args =
-                        new Object[] { className, b, 0, b.length};
+                        new Object[]{className, b, 0, b.length};
                 clazz = (Class<?>) method.invoke(loader, args);
             } finally {
                 method.setAccessible(false);
@@ -68,5 +89,29 @@ public final class AsmUtil {
         return clazz;
     }
 
+    public static @NotNull String prettyPrintEvalMethod(byte[] bytecode) {
+        var str = new StringBuilder();
+        var printer = new Textifier();
+        var mp = new TraceMethodVisitor(printer);
+
+        var cr = new ClassReader(bytecode);
+        var cn = new ClassNode();
+        cr.accept(cn, 0);
+        for (var method : cn.methods) {
+            // Ignore any method that isnt evaluate and not a bridge (we want the concrete impl)
+            if (!"evaluate".equals(method.name) || (method.access & Opcodes.ACC_BRIDGE) != 0)
+                continue;
+            InsnList insns = method.instructions;
+            for (var insn : insns) {
+                insn.accept(mp);
+                StringWriter sw = new StringWriter();
+                printer.print(new PrintWriter(sw));
+                printer.getText().clear();
+                str.append(sw.toString().trim()).append("\n");
+            }
+        }
+
+        return str.toString();
+    }
 
 }

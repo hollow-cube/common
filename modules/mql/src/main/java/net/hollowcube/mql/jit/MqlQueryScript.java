@@ -9,7 +9,7 @@ package net.hollowcube.mql.jit;
  *     <li>Must have a single abstract method which returns a double ({@link FunctionalInterface} can enforce this at compile time, but is not required)</li>
  *     <li>The abstract method may have 1 or more parameters, but all must be annotated with {@link MqlEnv}.</li>
  *     <li>The abstract method may not have generic parameters.</li>
- *     <li>The interface may use generic parameters, but they must be passed to {@link MqlCompilerV2#compile(String, Class, Class[])}</li>
+ *     <li>The interface may use generic parameters, but they must be passed to the {@link MqlCompiler}</li>
  * </ul>
  */
 @FunctionalInterface

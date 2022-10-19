@@ -1,4 +1,4 @@
-package net.hollowcube.mql.compile;
+package net.hollowcube.mql.jit;
 
 public interface BaseScript {
     double evaluate();
