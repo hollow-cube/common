@@ -106,6 +106,34 @@ public class MqlLexer {
             case ':' -> MqlToken.Type.COLON;
             case '(' -> MqlToken.Type.LPAREN;
             case ')' -> MqlToken.Type.RPAREN;
+            case '>' -> {
+                if (match('=')) {
+                    yield MqlToken.Type.GTE;
+                } else {
+                    yield MqlToken.Type.GE;
+                }
+            }
+            case '<' -> {
+                if (match('=')) {
+                    yield MqlToken.Type.LTE;
+                } else {
+                    yield MqlToken.Type.LE;
+                }
+            }
+            case '=' -> {
+                if (match('=')) {
+                    yield MqlToken.Type.EQ;
+                } else {
+                    throw new MqlParseError(String.format("unexpected token '%s' at %d.", c, cursor));
+                }
+            }
+            case '!' -> {
+                if (match('=')) {
+                    yield MqlToken.Type.NEQ;
+                } else {
+                    throw new MqlParseError(String.format("unexpected token '%s' at %d.", c, cursor));
+                }
+            }
             default -> throw new MqlParseError(
                     String.format("unexpected token '%s' at %d.", c, cursor));
             // @formatter:on

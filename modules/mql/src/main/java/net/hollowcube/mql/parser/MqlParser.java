@@ -115,6 +115,12 @@ public class MqlParser {
             case QUESTION -> Operator.TERNARY;
             case QUESTIONQUESTION -> Operator.NULL_COALESCE;
             case LPAREN -> Operator.LPAREN;
+            case GTE -> Operator.GTE;
+            case GE -> Operator.GE;
+            case LTE -> Operator.LTE;
+            case LE -> Operator.LE;
+            case EQ -> Operator.EQ;
+            case NEQ -> Operator.NEQ;
             default -> null;
         };
     }
@@ -126,6 +132,13 @@ public class MqlParser {
         DIV(27, 28, MqlBinaryExpr.Op.DIV),
         MUL(27, 28, MqlBinaryExpr.Op.MUL),
         LPAREN(30, 30, null),
+
+        GTE(30, 31, MqlBinaryExpr.Op.GTE),
+        GE(30, 31, MqlBinaryExpr.Op.GE),
+        LTE(30, 31, MqlBinaryExpr.Op.LTE),
+        LE(30, 31, MqlBinaryExpr.Op.LE),
+        EQ(30, 31, MqlBinaryExpr.Op.EQ),
+        NEQ(30, 31, MqlBinaryExpr.Op.NEQ),
 
         MEMBER_ACCESS(35, 36, null),
         TERNARY(0, 0, null); // Open of a ternary expression (?), only a postfix operator

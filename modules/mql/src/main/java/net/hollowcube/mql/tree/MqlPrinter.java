@@ -14,6 +14,12 @@ public class MqlPrinter implements MqlVisitor<Void, String> {
                     case MUL -> "*";
                     case DIV -> "/";
                     case NULL_COALESCE -> "??";
+                    case GTE -> ">=";
+                    case GE -> ">";
+                    case LTE -> "<=";
+                    case LE -> "<";
+                    case EQ -> "==";
+                    case NEQ -> "!=";
                 },
                 visit(expr.lhs(), null),
                 visit(expr.rhs(), null)

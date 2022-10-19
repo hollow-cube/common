@@ -256,4 +256,197 @@ public class TestMql {
         assertTrue(result instanceof MqlNumberValue);
         assertEquals(Math.PI + 1, ((MqlNumberValue) result).value());
     }
+
+    @Test
+    public void testEqTrue() {
+        var source = "1 == 1";
+
+        var expr = new MqlParser(source).parse();
+        var scopeImpl = new MqlScopeImpl();
+        var vars = new MqlScopeImpl.Mutable();
+
+        var scope = new MqlScriptScope(scopeImpl, vars, scopeImpl);
+
+        var result = expr.evaluate(scope);
+
+        assertTrue(result instanceof MqlNumberValue);
+        assertEquals(1, ((MqlNumberValue) result).value());
+    }
+
+    @Test
+    public void testEqFalse() {
+        var source = "1 == 2";
+
+        var expr = new MqlParser(source).parse();
+
+        var scopeImpl = new MqlScopeImpl();
+        var vars = new MqlScopeImpl.Mutable();
+
+        var scope = new MqlScriptScope(scopeImpl, vars, scopeImpl);
+
+        var result = expr.evaluate(scope);
+
+        assertTrue(result instanceof MqlNumberValue);
+        assertEquals(0, ((MqlNumberValue) result).value());
+    }
+
+    @Test
+    public void testGteTrue() {
+        var source = "1 >= 1";
+
+        var expr = new MqlParser(source).parse();
+        var scopeImpl = new MqlScopeImpl();
+        var vars = new MqlScopeImpl.Mutable();
+
+        var scope = new MqlScriptScope(scopeImpl, vars, scopeImpl);
+
+        var result = expr.evaluate(scope);
+
+        assertTrue(result instanceof MqlNumberValue);
+        assertEquals(1, ((MqlNumberValue) result).value());
+    }
+
+    @Test
+    public void testGteFalse() {
+        var source = "1 >= 2";
+
+        var expr = new MqlParser(source).parse();
+        var scopeImpl = new MqlScopeImpl();
+        var vars = new MqlScopeImpl.Mutable();
+
+        var scope = new MqlScriptScope(scopeImpl, vars, scopeImpl);
+
+        var result = expr.evaluate(scope);
+
+        assertTrue(result instanceof MqlNumberValue);
+        assertEquals(0, ((MqlNumberValue) result).value());
+    }
+
+    @Test
+    public void testGtTrue() {
+        var source = "2 > 1";
+
+        var expr = new MqlParser(source).parse();
+        var scopeImpl = new MqlScopeImpl();
+        var vars = new MqlScopeImpl.Mutable();
+
+        var scope = new MqlScriptScope(scopeImpl, vars, scopeImpl);
+
+        var result = expr.evaluate(scope);
+
+        assertTrue(result instanceof MqlNumberValue);
+        assertEquals(1, ((MqlNumberValue) result).value());
+    }
+
+    @Test
+    public void testGtFalse() {
+        var source = "1 > 1";
+
+        var expr = new MqlParser(source).parse();
+        var scopeImpl = new MqlScopeImpl();
+        var vars = new MqlScopeImpl.Mutable();
+
+        var scope = new MqlScriptScope(scopeImpl, vars, scopeImpl);
+
+        var result = expr.evaluate(scope);
+
+        assertTrue(result instanceof MqlNumberValue);
+        assertEquals(0, ((MqlNumberValue) result).value());
+    }
+
+    @Test
+    public void testLteTrue() {
+        var source = "1 <= 1";
+
+        var expr = new MqlParser(source).parse();
+        var scopeImpl = new MqlScopeImpl();
+        var vars = new MqlScopeImpl.Mutable();
+
+        var scope = new MqlScriptScope(scopeImpl, vars, scopeImpl);
+
+        var result = expr.evaluate(scope);
+
+        assertTrue(result instanceof MqlNumberValue);
+        assertEquals(1, ((MqlNumberValue) result).value());
+    }
+
+    @Test
+    public void testLteFalse() {
+        var source = "2 <= 1";
+
+        var expr = new MqlParser(source).parse();
+        var scopeImpl = new MqlScopeImpl();
+        var vars = new MqlScopeImpl.Mutable();
+
+        var scope = new MqlScriptScope(scopeImpl, vars, scopeImpl);
+
+        var result = expr.evaluate(scope);
+
+        assertTrue(result instanceof MqlNumberValue);
+        assertEquals(0, ((MqlNumberValue) result).value());
+    }
+
+    @Test
+    public void testLtTrue() {
+        var source = "1 < 2";
+
+        var expr = new MqlParser(source).parse();
+        var scopeImpl = new MqlScopeImpl();
+        var vars = new MqlScopeImpl.Mutable();
+
+        var scope = new MqlScriptScope(scopeImpl, vars, scopeImpl);
+
+        var result = expr.evaluate(scope);
+
+        assertTrue(result instanceof MqlNumberValue);
+        assertEquals(1, ((MqlNumberValue) result).value());
+    }
+
+    @Test
+    public void testLtFalse() {
+        var source = "1 < 1";
+
+        var expr = new MqlParser(source).parse();
+        var scopeImpl = new MqlScopeImpl();
+        var vars = new MqlScopeImpl.Mutable();
+
+        var scope = new MqlScriptScope(scopeImpl, vars, scopeImpl);
+
+        var result = expr.evaluate(scope);
+
+        assertTrue(result instanceof MqlNumberValue);
+        assertEquals(0, ((MqlNumberValue) result).value());
+    }
+
+    @Test
+    public void testNeqTrue() {
+        var source = "1 != 2";
+
+        var expr = new MqlParser(source).parse();
+        var scopeImpl = new MqlScopeImpl();
+        var vars = new MqlScopeImpl.Mutable();
+
+        var scope = new MqlScriptScope(scopeImpl, vars, scopeImpl);
+
+        var result = expr.evaluate(scope);
+
+        assertTrue(result instanceof MqlNumberValue);
+        assertEquals(1, ((MqlNumberValue) result).value());
+    }
+
+    @Test
+    public void testNeqFalse() {
+        var source = "1 != 1";
+
+        var expr = new MqlParser(source).parse();
+        var scopeImpl = new MqlScopeImpl();
+        var vars = new MqlScopeImpl.Mutable();
+
+        var scope = new MqlScriptScope(scopeImpl, vars, scopeImpl);
+
+        var result = expr.evaluate(scope);
+
+        assertTrue(result instanceof MqlNumberValue);
+        assertEquals(0, ((MqlNumberValue) result).value());
+    }
 }

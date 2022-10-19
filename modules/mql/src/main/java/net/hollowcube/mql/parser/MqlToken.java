@@ -8,6 +8,7 @@ record MqlToken(@NotNull Type type, int start, int end) {
         PLUS, MINUS, STAR, SLASH,
         LPAREN, RPAREN,
         DOT, COMMA, COLON, QUESTION, QUESTIONQUESTION,
+        GTE, GE, LTE, LE, EQ, NEQ,
         NUMBER, IDENT;
     }
 
