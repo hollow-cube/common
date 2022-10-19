@@ -15,7 +15,13 @@ public record MqlBinaryExpr(
         MINUS,
         DIV,
         MUL,
-        NULL_COALESCE
+        NULL_COALESCE,
+        GTE,
+        GE,
+        LTE,
+        LE,
+        EQ,
+        NEQ
     }
 
     @Override
@@ -39,6 +45,12 @@ public record MqlBinaryExpr(
             case MINUS -> new MqlNumberValue(lhs.value() - rhs.value());
             case DIV -> new MqlNumberValue(lhs.value() / rhs.value());
             case MUL -> new MqlNumberValue(lhs.value() * rhs.value());
+            case GTE -> new MqlNumberValue(lhs.value() >= rhs.value() ? 1 : 0);
+            case GE -> new MqlNumberValue(lhs.value() > rhs.value() ? 1 : 0);
+            case LTE -> new MqlNumberValue(lhs.value() <= rhs.value() ? 1 : 0);
+            case LE -> new MqlNumberValue(lhs.value() < rhs.value() ? 1 : 0);
+            case EQ -> new MqlNumberValue(lhs.value() == rhs.value() ? 1 : 0);
+            case NEQ -> new MqlNumberValue(lhs.value() != rhs.value() ? 1 : 0);
             case NULL_COALESCE -> throw new RuntimeException("unreachable");
         };
     }
