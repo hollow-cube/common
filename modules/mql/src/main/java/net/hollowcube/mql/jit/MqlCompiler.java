@@ -1,5 +1,8 @@
-package net.hollowcube.mql.compile;
+package net.hollowcube.mql.jit;
 
+import net.hollowcube.mql.compile.AsmUtil;
+import net.hollowcube.mql.compile.MqlRuntime;
+import net.hollowcube.mql.compile.MqlScript;
 import net.hollowcube.mql.parser.MqlParser;
 import net.hollowcube.mql.tree.*;
 import net.hollowcube.mql.util.StringUtil;

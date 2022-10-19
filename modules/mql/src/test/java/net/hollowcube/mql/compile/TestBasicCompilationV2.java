@@ -2,6 +2,7 @@ package net.hollowcube.mql.compile;
 
 import net.hollowcube.mql.foreign.Query;
 import net.hollowcube.mql.jit.MqlCompiler;
+import net.hollowcube.mql.jit.MqlCompilerV2;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.objectweb.asm.ClassReader;
@@ -17,7 +18,7 @@ import java.io.StringWriter;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
-public class TestBasicCompilation {
+public class TestBasicCompilationV2 {
 
     @Test
     public void singleNumber() {
@@ -44,51 +45,59 @@ public class TestBasicCompilation {
                 DRETURN
                 """);
     }
-
-    @Test
-    public void callQueryNoArgs() {
-        class TestQuery {
-            @Query
-            public double testValue() {
-                return 1.234;
-            }
-        }
-
-        var script = "q.test_value";
-        var expected = """
-                ALOAD 1
-                INVOKEVIRTUAL net/hollowcube/mql/compile/TestBasicCompilation$1TestQuery.testValue ()D
-                DRETURN
-                """;
-        check(TestQuery.class, Object.class, script, expected);
-    }
-
-    @Test
-    public void callQueryReturnTypeCoercion() {
-        class TestQuery {
-            @Query
-            public boolean testValue() {
-                return true;
-            }
-        }
-
-        var script = "q.test_value";
-        var expected = """
-                ALOAD 1
-                INVOKEVIRTUAL net/hollowcube/mql/compile/TestBasicCompilation$2TestQuery.testValue ()Z
-                INVOKESTATIC net/hollowcube/mql/compile/MqlRuntime.boolToDouble (Z)D
-                DRETURN
-                """;
-        check(TestQuery.class, Object.class, script, expected);
-    }
+//
+//    @Test
+//    public void callQueryNoArgs() {
+//        class TestQuery {
+//            @Query
+//            public double testValue() {
+//                return 1.234;
+//            }
+//        }
+//
+//        var script = "q.test_value";
+//        var expected = """
+//                ALOAD 1
+//                INVOKEVIRTUAL net/hollowcube/mql/compile/TestBasicCompilation$1TestQuery.testValue ()D
+//                DRETURN
+//                """;
+//        check(TestQuery.class, Object.class, script, expected);
+//    }
+//
+//    @Test
+//    public void callQueryReturnTypeCoercion() {
+//        class TestQuery {
+//            @Query
+//            public boolean testValue() {
+//                return true;
+//            }
+//        }
+//
+//        var script = "q.test_value";
+//        var expected = """
+//                ALOAD 1
+//                INVOKEVIRTUAL net/hollowcube/mql/compile/TestBasicCompilation$2TestQuery.testValue ()Z
+//                INVOKESTATIC net/hollowcube/mql/compile/MqlRuntime.boolToDouble (Z)D
+//                DRETURN
+//                """;
+//        check(TestQuery.class, Object.class, script, expected);
+//    }
 
     private void check0(@NotNull String source, @NotNull String expected) {
-        check(Object.class, Object.class, source, expected);
+        interface MyScript {
+            double evaluate();
+        }
+
+        var compiler = new MqlCompilerV2<>(MyScript.class);
+        byte[] bytecode = compiler.compileBytecode("mql$test", source);
+
+        var str = prettyPrintEvalMethod(bytecode);
+        assertEquals(expected, str);
     }
 
     private void check(Class<?> queryClass, Class<?> contextClass, @NotNull String source, @NotNull String expected) {
-        var compiler = new MqlCompiler<>(queryClass, contextClass);
-        byte[] bytecode = compiler.compileBytecode(source);
+        var compiler = new MqlCompilerV2<>(queryClass, contextClass);
+        byte[] bytecode = compiler.compileBytecode("mql$test", source);
 
         var str = prettyPrintEvalMethod(bytecode);
         assertEquals(expected, str);

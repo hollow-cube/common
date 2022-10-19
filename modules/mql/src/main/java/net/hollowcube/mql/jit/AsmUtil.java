@@ -1,5 +1,6 @@
-package net.hollowcube.mql.compile;
+package net.hollowcube.mql.jit;
 
+import net.hollowcube.mql.compile.MqlScript;
 import org.jetbrains.annotations.NotNull;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
@@ -40,12 +41,12 @@ public final class AsmUtil {
     }
 
     @SuppressWarnings("all")
-    public static <_Query, _Context> Class<MqlScript<_Query, _Context>> loadClass(String className, byte[] b) {
+    public static Class<?> loadClass(String className, byte[] b) {
         // Override defineClass (as it is protected) and define the class.
-        Class<MqlScript<_Query, _Context>> clazz = null;
+        Class<?> clazz = null;
         try {
             ClassLoader loader = ClassLoader.getSystemClassLoader();
-            Class<MqlScript<_Query, _Context>> cls = (Class<MqlScript<_Query, _Context>>) Class.forName("java.lang.ClassLoader");
+            Class<?> cls = (Class<?>) Class.forName("java.lang.ClassLoader");
             java.lang.reflect.Method method =
                     cls.getDeclaredMethod(
                             "defineClass",
@@ -56,7 +57,7 @@ public final class AsmUtil {
             try {
                 Object[] args =
                         new Object[] { className, b, 0, b.length};
-                clazz = (Class<MqlScript<_Query, _Context>>) method.invoke(loader, args);
+                clazz = (Class<?>) method.invoke(loader, args);
             } finally {
                 method.setAccessible(false);
             }
@@ -67,31 +68,5 @@ public final class AsmUtil {
         return clazz;
     }
 
-    public static class StringClassVisitor extends ClassVisitor {
-        private final ClassWriter cw;
-        private final StringWriter sw;
-
-        public StringClassVisitor() {
-            this(new ClassWriter(ClassWriter.COMPUTE_MAXS), new StringWriter());
-        }
-
-        public StringClassVisitor(ClassWriter cw) {
-            this(cw, new StringWriter());
-        }
-
-        private StringClassVisitor(ClassWriter cw, StringWriter sw) {
-            super(Opcodes.ASM9, new TraceClassVisitor(cw, new PrintWriter(sw)));
-            this.cw = cw;
-            this.sw = sw;
-        }
-
-        public ClassWriter classWriter() {
-            return cw;
-        }
-
-        public String bytecode() {
-            return sw.toString();
-        }
-    }
 
 }
