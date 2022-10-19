@@ -35,6 +35,10 @@ public class PostgreSQLManager {
         postgreSQLManager.connectToPostgreSQL(address, port, username, password);
     }
 
+    public static PostgreSQLManager get() {
+        return postgreSQLManager;
+    }
+
     /**
      * Initializes a specific SQL connection
      * @param address
