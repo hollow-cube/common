@@ -109,29 +109,17 @@ public class MqlCompiler<T> {
                 case MINUS -> method.visitInsn(DSUB);
                 case MUL -> method.visitInsn(DMUL);
                 case DIV -> method.visitInsn(DDIV);
+                case NULL_COALESCE -> {
+                    throw new RuntimeException("Null coalesce operator not supported in JIT mode");
+                }
+                case GTE -> method.visitMethodInsn(INVOKESTATIC, AsmUtil.toName(MqlRuntime.class), "gte", "(DD)D", false);
+                case GE -> method.visitMethodInsn(INVOKESTATIC, AsmUtil.toName(MqlRuntime.class), "ge", "(DD)D", false);
+                case LTE -> method.visitMethodInsn(INVOKESTATIC, AsmUtil.toName(MqlRuntime.class), "lte", "(DD)D", false);
+                case LE -> method.visitMethodInsn(INVOKESTATIC, AsmUtil.toName(MqlRuntime.class), "le", "(DD)D", false);
+                case EQ -> method.visitMethodInsn(INVOKESTATIC, AsmUtil.toName(MqlRuntime.class), "eq", "(DD)D", false);
+                case NEQ -> method.visitMethodInsn(INVOKESTATIC, AsmUtil.toName(MqlRuntime.class), "neq", "(DD)D", false);
             }
 
-            return null;
-        }
-
-        @Override
-        public Void visitAccessExpr(@NotNull MqlAccessExpr expr, Void unused) {
-//            if (expr.lhs() instanceof MqlIdentExpr ident) {
-//                if (!"q".equals(ident.value())) {
-//                    throw new UnsupportedOperationException("Only q is supported as a query object");
-//                }
-//
-//                var methodName = StringUtil.snakeCaseToCamelCase(expr.target());
-//                var methodInfo = queryClass.getMethod(methodName);
-//
-//                method.visitVarInsn(ALOAD, 1); // query parameter
-//                method.visitMethodInsn(INVOKEVIRTUAL, queryClass.name(), methodName, methodInfo.descriptor(), false);
-//
-//                // Convert boolean if necessary
-//                if (methodInfo.returnType() == boolean.class) {
-//                    method.visitMethodInsn(INVOKESTATIC, getClassName(MqlRuntime.class), "boolToDouble", "(Z)D", false);
-//                }
-//            }
             return null;
         }
 
@@ -174,6 +162,35 @@ public class MqlCompiler<T> {
             }
 
             throw new RuntimeException("Unknown query object: " + ident.value());
+        }
+
+        @Override
+        public Void visitUnaryExpr(@NotNull MqlUnaryExpr expr, Void unused) {
+            visit(expr.rhs(), null);
+
+            switch (expr.operator()) {
+                case NEGATE -> method.visitInsn(DNEG);
+            }
+
+            return null;
+        }
+
+        @Override
+        public Void visitAccessExpr(@NotNull MqlAccessExpr expr, Void unused) {
+            return MqlVisitor.super.visitAccessExpr(expr, unused);
+        }
+
+        @Override
+        public Void visitTernaryExpr(MqlTernaryExpr expr, Void unused) {
+            //todo this is a cursed implementation. It needs to be implemented in java for sanity,
+            // but also because this is semantically incorrect. The ternary operator is not short-circuiting.
+            visit(expr.condition(), null);
+            visit(expr.trueCase(), null);
+            visit(expr.falseCase(), null);
+
+            method.visitMethodInsn(INVOKESTATIC, AsmUtil.toName(MqlRuntime.class), "ternary", "(DDD)D", false);
+
+            return null;
         }
 
         @Override

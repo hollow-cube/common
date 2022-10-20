@@ -25,6 +25,18 @@ public class TestExecution {
         assertEquals(4, script.evaluate(new QueryTest()));
     }
 
+    @Test
+    public void ternarySimple() {
+        var script = compile(BaseScript.class, "1.0 ? 2.0 : 3.0");
+        assertEquals(2, script.evaluate());
+    }
+
+    @Test
+    public void gte() {
+        var script = compile(BaseScript.class, "1.0 >= 2.0");
+        assertEquals(0, script.evaluate());
+    }
+
     private <T> T compile(@NotNull Class<T> scriptInterface, @NotNull String source) {
         var compiler = new MqlCompiler<>(scriptInterface);
         Class<T> scriptClass = compiler.compile(source);
