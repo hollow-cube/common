@@ -1,15 +1,17 @@
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import net.hollowcube.WorldManager;
+import net.hollowcube.world.World;
+import net.minestom.server.MinecraftServer;
+import net.minestom.server.extras.MojangAuth;
+
+import java.sql.*;
 
 public class Main {
 
     public static void main(String[] args) throws SQLException {
-        String url = "jdbc:postgresql://localhost/postgres?user=postgres&password=starlight";
-        Connection conn = DriverManager.getConnection(url);
+        MinecraftServer server = MinecraftServer.init();
+        MojangAuth.init();
+        server.start("0.0.0.0", 25565);
 
-        PreparedStatement st = conn.prepareStatement("CREATE TABLE IF NOT EXISTS hollowcub (player VARCHAR(100))");
-        st.execute();
+        WorldManager.init();
     }
 }
