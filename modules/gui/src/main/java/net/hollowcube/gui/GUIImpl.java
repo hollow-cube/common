@@ -62,10 +62,26 @@ public class GUIImpl extends Inventory implements GUI {
     public @NotNull ItemStack[] getItemStacks() {
         ItemStack[] stacks = new ItemStack[getSize()];
         Arrays.fill(stacks, defaultItem);
-
         // Iterate over sectionMap, assign items to slots accordingly
-
+        for (var entry : sectionMap.entrySet()) {
+            // key is index of top left corner
+            ItemStack[] sectionStacks = entry.getValue().getItemStacks();
+            for(int i = 0; i < entry.getValue().xSize() * entry.getValue().ySize(); i++) {
+                stacks[translateSectionIndexToArrayIndex(entry.getKey(), entry.getValue(), i)] = sectionStacks[i];
+            }
+        }
         return stacks;
+    }
+
+    private int translateSectionIndexToArrayIndex(int sectionIndex, Section section, int offset) {
+        // Calculate original x and y
+        int xOffset = sectionIndex % getMaxWidth();
+        int yOffset = sectionIndex / getMaxWidth();
+        // Calculate section x and y
+        int sectionX = offset % section.ySize();
+        int sectionY = offset / section.ySize();
+        // Add
+        return (sectionY + yOffset) * getMaxWidth() + (xOffset + sectionX);
     }
 
     private @Nullable Map.Entry<Integer, Section> getSectionEntry(int x, int y) {
