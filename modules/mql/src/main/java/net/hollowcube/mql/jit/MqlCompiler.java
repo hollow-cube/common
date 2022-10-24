@@ -2,6 +2,7 @@ package net.hollowcube.mql.jit;
 
 import net.hollowcube.mql.foreign.Query;
 import net.hollowcube.mql.parser.MqlParser;
+import net.hollowcube.mql.runtime.MqlMath;
 import net.hollowcube.mql.tree.*;
 import net.minestom.server.utils.validate.Check;
 import org.jetbrains.annotations.NotNull;
@@ -28,6 +29,8 @@ import static org.objectweb.asm.Opcodes.*;
  * Note: This class is not thread-safe, and must be synchronized externally.
  */
 public class MqlCompiler<T> {
+    private static final ClassInfo MATH_CI = new ClassInfo(MqlMath.class, true);
+
     private final Class<?> scriptInterface;
     private final Class<?>[] generics;
 
@@ -128,6 +131,24 @@ public class MqlCompiler<T> {
             if (!(expr.access().lhs() instanceof MqlIdentExpr ident))
                 throw new UnsupportedOperationException("Nested queries are not supported");
 
+            // If this is a math call, it will not be a known parameter
+            if ("math".equals(ident.value()) || "m".equals(ident.value())) {
+                var method = MATH_CI.findMethod(expr.access().target(), expr.argList().size());
+                if (method == null) {
+                    throw new UnsupportedOperationException("Method not found with " + expr.argList().size() + ": " + expr.access().target());
+                }
+
+                for (int i = 0; i < expr.argList().size(); i++) {
+                    visit(expr.argList().args().get(i), null);
+                    AsmUtil.convert(method.getParameterTypes()[i], double.class, this.method);
+                }
+
+                // Call the method
+                this.method.visitMethodInsn(INVOKESTATIC, AsmUtil.toName(MqlMath.class), method.getName(), AsmUtil.toDescriptor(method), false);
+                return null;
+            }
+
+            // Try to find a matching context object from script interface parameters.
             for (int j = 0; j < evalMethodParams.length; j++) {
                 var param = evalMethodParams[j];
                 boolean found = false;
@@ -288,11 +309,16 @@ public class MqlCompiler<T> {
 
     private static class ClassInfo {
         private final Class<?> type;
+        private final boolean allowStatic;
         private final Map<String, List<Method>> methodsByName = new HashMap<>();
 
         private ClassInfo(Class<?> type) {
-            this.type = type;
+            this(type, false);
+        }
 
+        private ClassInfo(Class<?> type, boolean allowStatic) {
+            this.type = type;
+            this.allowStatic = allowStatic;
             discoverMethods(type);
         }
 
@@ -311,7 +337,7 @@ public class MqlCompiler<T> {
 
         private void discoverMethods(Class<?> type) {
             for (var method : type.getMethods()) {
-                if ((method.getModifiers() & Modifier.STATIC) != 0) continue;
+                if (!allowStatic && (method.getModifiers() & Modifier.STATIC) != 0) continue;
                 if (!method.isAnnotationPresent(Query.class)) continue;
                 for (var paramType : method.getParameterTypes()) {
                     if (!paramType.equals(double.class) && !paramType.equals(boolean.class))

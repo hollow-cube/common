@@ -37,6 +37,12 @@ public class TestExecution {
         assertEquals(0, script.evaluate());
     }
 
+    @Test
+    public void math() {
+        var script = compile(BaseScript.class, "math.abs(-100)");
+        assertEquals(100, script.evaluate());
+    }
+
     private <T> T compile(@NotNull Class<T> scriptInterface, @NotNull String source) {
         var compiler = new MqlCompiler<>(scriptInterface);
         Class<T> scriptClass = compiler.compile(source);
