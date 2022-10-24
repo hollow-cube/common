@@ -25,6 +25,6 @@ public interface MqlVisitor<P, R> {
         return expr.visit(this, p);
     }
 
-    R defaultValue();
+    default R defaultValue() { return null; }
 }
 // @formatter:on

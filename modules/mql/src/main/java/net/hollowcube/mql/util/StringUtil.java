@@ -11,4 +11,11 @@ public final class StringUtil {
     public static String camelCaseToSnakeCase(String str) {
         return str.replaceAll(CAMEL_TO_SNAKE_CASE_REGEX, CAMEL_TO_SNAKE_CASE_REPLACEMENT).toLowerCase();
     }
+
+    public static String snakeCaseToCamelCase(String str) {
+        while (str.contains("_")) {
+            str = str.replaceFirst("_[a-z]", String.valueOf(Character.toUpperCase(str.charAt(str.indexOf("_") + 1))));
+        }
+        return str;
+    }
 }

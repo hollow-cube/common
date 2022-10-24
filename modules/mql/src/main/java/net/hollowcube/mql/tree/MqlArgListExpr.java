@@ -16,4 +16,8 @@ public record MqlArgListExpr(List<MqlExpr> args) implements MqlExpr {
     public <P, R> R visit(@NotNull MqlVisitor<P, R> visitor, P p) {
         return visitor.visitArgListExpr(this, p);
     }
+
+    public int size() {
+        return args().size();
+    }
 }
