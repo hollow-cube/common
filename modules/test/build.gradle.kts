@@ -3,6 +3,8 @@ plugins {
 }
 
 dependencies {
+    // Minestom
+    api("com.github.minestommmo:Minestom:c6c97162a6")
 
     // JUnit
     api("org.junit.jupiter:junit-jupiter-api:5.9.0")
@@ -11,7 +13,6 @@ dependencies {
 
     // Truth
     api("com.google.truth:truth:1.1.3")
-
 
     // TestContainers
     fun testContainersApi(name: String) {
