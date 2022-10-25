@@ -59,6 +59,11 @@ public class GUIImpl extends Inventory implements GUI {
     }
 
     @Override
+    public Inventory getInventory() {
+        return this;
+    }
+
+    @Override
     public @NotNull ItemStack[] getItemStacks() {
         ItemStack[] stacks = new ItemStack[getSize()];
         Arrays.fill(stacks, defaultItem);
