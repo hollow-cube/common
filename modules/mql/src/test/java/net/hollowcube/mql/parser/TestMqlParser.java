@@ -1,6 +1,6 @@
 package net.hollowcube.mql.parser;
 
-import net.hollowcube.mql.tree.MqlPrinter;
+import net.hollowcube.mql.util.MqlPrinter;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
