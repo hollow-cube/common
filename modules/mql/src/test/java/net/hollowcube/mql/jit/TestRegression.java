@@ -1,5 +1,6 @@
 package net.hollowcube.mql.jit;
 
+import net.hollowcube.mql.foreign.Query;
 import net.hollowcube.mql.parser.MqlParser;
 import net.hollowcube.mql.util.MqlPrinter;
 import org.jetbrains.annotations.NotNull;
@@ -39,6 +40,31 @@ public class TestRegression {
         var script = execute(BaseScript.class, "1 + 1 + math.clamp(1, 10, 20)");
         assertEquals(12, script.evaluate());
     }
+
+    public static class TestClass {
+        @Query
+        public double variable() {
+            return 12;
+        }
+    }
+
+    @FunctionalInterface
+    public interface TestScript {
+        double evaluate(@MqlEnv({"variable", "v"}) TestClass emitter);
+    }
+
+    @Test
+    public void variableVariableParse() {
+        parse("variable.variable", "(. variable variable)");
+    }
+
+    @Test
+    public void variableVariable() {
+        var script = execute(TestScript.class, "variable.variable");
+        assertEquals(12, script.evaluate(new TestClass()));
+    }
+
+
 
     private void parse(String input, String expected) {
         var expr = new MqlParser(input).parse();

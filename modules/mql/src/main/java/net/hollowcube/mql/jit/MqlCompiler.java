@@ -127,25 +127,39 @@ public class MqlCompiler<T> {
         }
 
         @Override
+        public Void visitAccessExpr(@NotNull MqlAccessExpr expr, Void unused) {
+            // For now treat this as a zero args call, since we do not yet support assignment or field operators.
+            if (!(expr.lhs() instanceof MqlIdentExpr ident))
+                throw new UnsupportedOperationException("Nested queries are not supported");
+            handleCall(ident.value(), expr.target(), new MqlArgListExpr(List.of()));
+            return null;
+        }
+
+        @Override
         public Void visitCallExpr(MqlCallExpr expr, Void unused) {
             if (!(expr.access().lhs() instanceof MqlIdentExpr ident))
                 throw new UnsupportedOperationException("Nested queries are not supported");
 
+            handleCall(ident.value(), expr.access().target(), expr.argList());
+            return null;
+        }
+
+        private void handleCall(String queryName, String methodName, MqlArgListExpr args) {
             // If this is a math call, it will not be a known parameter
-            if ("math".equals(ident.value()) || "m".equals(ident.value())) {
-                var method = MATH_CI.findMethod(expr.access().target(), expr.argList().size());
+            if ("math".equals(queryName) || "m".equals(queryName)) {
+                var method = MATH_CI.findMethod(methodName, args.size());
                 if (method == null) {
-                    throw new UnsupportedOperationException("Method not found with " + expr.argList().size() + ": " + expr.access().target());
+                    throw new UnsupportedOperationException("Method not found with " + args.size() + ": " + methodName);
                 }
 
-                for (int i = 0; i < expr.argList().size(); i++) {
-                    visit(expr.argList().args().get(i), null);
+                for (int i = 0; i < args.size(); i++) {
+                    visit(args.args().get(i), null);
                     AsmUtil.convert(method.getParameterTypes()[i], double.class, this.method);
                 }
 
                 // Call the method
                 this.method.visitMethodInsn(INVOKESTATIC, AsmUtil.toName(MqlMath.class), method.getName(), AsmUtil.toDescriptor(method), false);
-                return null;
+                return;
             }
 
             // Try to find a matching context object from script interface parameters.
@@ -153,7 +167,7 @@ public class MqlCompiler<T> {
                 var param = evalMethodParams[j];
                 boolean found = false;
                 for (var name : param.names) {
-                    if (name.equals(ident.value())) {
+                    if (name.equals(queryName)) {
                         found = true;
                         break;
                     }
@@ -162,27 +176,27 @@ public class MqlCompiler<T> {
                 if (!found) continue;
 
                 // Found the query object being referenced
-                var method = param.ci.findMethod(expr.access().target(), expr.argList().size());
+                var method = param.ci.findMethod(methodName, args.size());
                 if (method == null) {
-                    throw new UnsupportedOperationException("Method not found with " + expr.argList().size() + ": " + expr.access().target());
+                    throw new UnsupportedOperationException("Method not found with " + args.size() + ": " + methodName);
                 }
 
                 // Load the query object
                 this.method.visitVarInsn(ALOAD, j + 1);
 
                 // Load the parameters
-                for (int i = 0; i < expr.argList().size(); i++) {
-                    visit(expr.argList().args().get(i), null);
+                for (int i = 0; i < args.size(); i++) {
+                    visit(args.args().get(i), null);
                     AsmUtil.convert(method.getParameterTypes()[i], double.class, this.method);
                 }
 
                 // Call the method
                 this.method.visitMethodInsn(INVOKEVIRTUAL, AsmUtil.toName(param.ci.type), method.getName(), AsmUtil.toDescriptor(method), false);
 
-                return null;
+                return;
             }
 
-            throw new RuntimeException("Unknown query object: " + ident.value());
+            throw new RuntimeException("Unknown query object: " + queryName);
         }
 
         @Override
@@ -194,11 +208,6 @@ public class MqlCompiler<T> {
             }
 
             return null;
-        }
-
-        @Override
-        public Void visitAccessExpr(@NotNull MqlAccessExpr expr, Void unused) {
-            return MqlVisitor.super.visitAccessExpr(expr, unused);
         }
 
         @Override
