@@ -1,5 +1,6 @@
-package net.hollowcube.mql.tree;
+package net.hollowcube.mql.util;
 
+import net.hollowcube.mql.tree.*;
 import org.jetbrains.annotations.NotNull;
 
 public class MqlPrinter implements MqlVisitor<Void, String> {

@@ -163,7 +163,7 @@ public class MqlParser {
         public int postfixBindingPower() {
             return switch (this) {
                 case TERNARY -> 1;
-                case LPAREN -> 2;
+                case LPAREN -> 34;
                 default -> -1;
             };
         }
