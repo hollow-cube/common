@@ -64,6 +64,14 @@ public class TestRegression {
         assertEquals(12, script.evaluate(new TestClass()));
     }
 
+    @Test
+    public void sameScriptTwice() {
+        var script = execute(TestScript.class, "variable.variable + 1");
+        assertEquals(13, script.evaluate(new TestClass()));
+        script = execute(TestScript.class, "variable.variable + 1");
+        assertEquals(13, script.evaluate(new TestClass()));
+    }
+
 
 
     private void parse(String input, String expected) {

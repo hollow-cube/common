@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.objectweb.asm.Opcodes.*;
 
@@ -29,6 +30,7 @@ import static org.objectweb.asm.Opcodes.*;
  * Note: This class is not thread-safe, and must be synchronized externally.
  */
 public class MqlCompiler<T> {
+    private static final AtomicInteger COUNTER = new AtomicInteger();
     private static final ClassInfo MATH_CI = new ClassInfo(MqlMath.class, true);
 
     private final Class<?> scriptInterface;
@@ -48,7 +50,7 @@ public class MqlCompiler<T> {
         String sourceHash = Integer.toHexString(script.hashCode());
         // Could cache based on the hash if compiling many times over is a valid use case, but I don't think it is.
 
-        String className = "mql$" + sourceHash;
+        String className = String.format("mql$%s$%d", sourceHash, COUNTER.getAndIncrement());
         byte[] bytecode = compileBytecode(className, script);
         return (Class<T>) AsmUtil.loadClass(className, bytecode);
     }
