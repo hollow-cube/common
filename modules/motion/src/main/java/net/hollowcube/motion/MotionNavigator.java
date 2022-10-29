@@ -26,21 +26,35 @@ import org.jetbrains.annotations.Nullable;
 
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.function.Supplier;
 
 /**
  * Consumes paths from a {@link Pathfinder} to navigate an {@link Entity} in an instance.
  */
 public final class MotionNavigator {
-    private final Cooldown jumpCooldown = new Cooldown(Duration.of(40, TimeUnit.SERVER_TICK));
-    private final Cooldown debugCooldown = new Cooldown(Duration.of(1, TimeUnit.SERVER_TICK));
-    private final Entity entity;
+    private final LivingEntity entity;
+    private final PathGenerator generator;
+    private final Pathfinder pathfinder;
+    private final PathOptimizer optimizer;
+    private final MoveController controller;
 
+    private final Cooldown debugCooldown = new Cooldown(Duration.of(1, TimeUnit.SERVER_TICK));
     private Point goal = null;
     private Path path = null;
     private int index = 0;
 
-    public MotionNavigator(@NotNull Entity entity) {
+    public MotionNavigator(
+            @NotNull LivingEntity entity,
+            @NotNull PathGenerator pathGenerator,
+            @NotNull Pathfinder pathfinder,
+            @Nullable PathOptimizer optimizer,
+            @NotNull Supplier<MoveController> moveController
+    ) {
         this.entity = entity;
+        this.generator = pathGenerator;
+        this.pathfinder = pathfinder;
+        this.optimizer = optimizer;
+        this.controller = moveController.get();
     }
 
     public boolean isActive() {
@@ -87,19 +101,22 @@ public final class MotionNavigator {
             return false;
 
         // Attempt to find a path
-        path = Pathfinder.A_STAR.findPath(PathGenerator.LAND, instance,
+        path = pathfinder.findPath(generator, instance,
                 entity.getPosition(), point, entity.getBoundingBox());
-
         boolean success = path != null;
+        if (success && optimizer != null) {
+            path = optimizer.optimize(path, instance, entity.getBoundingBox());
+        }
+
         goal = success ? point : null;
         return success;
     }
 
     public void tick(long time) {
         if (goal == null || path == null) return; // No path
-        if (entity instanceof LivingEntity livingEntity && livingEntity.isDead()) return;
+        if (entity.isDead()) return;
 
-        // If we are close enough to the goal position, just stop
+        // If we are close enough to the goal position, stop
         float minDistance = 0.8f; //todo move me
         if (entity.getDistance(goal) < minDistance) {
             reset();
@@ -114,16 +131,9 @@ public final class MotionNavigator {
 
         Point current = index < path.size() ? path.get(index) : goal;
 
-        float movementSpeed = 0.1f;
-        if (entity instanceof LivingEntity livingEntity) {
-            movementSpeed = livingEntity.getAttribute(Attribute.MOVEMENT_SPEED).getBaseValue();
-        }
+        controller.moveTowards(entity, current);
 
-        // Move towards the current target, trying to jump if stuck
-        boolean isStuck = moveTowards(current, movementSpeed);
-        //todo jump if stuck
-
-        // Move to next point if stuck
+        // Move to next point
         if (entity.getPosition().distanceSquared(current) < 0.4) {
             index++;
         }

@@ -91,10 +91,6 @@ public interface Pathfinder {
             result.add(0, current);
         }
 
-        Path path = new Path(result);
-        //todo optimize the path
-        path = PathOptimizer.STRING_PULL.optimize(path, world, bb);
-
-        return path;
+        return new Path(result);
     };
 }

@@ -36,6 +36,32 @@ public class TestPathGeneratorLandDiagonal {
     }
 
     @Test
+    public void testSingleNeighborDown() {
+        var bb = new BoundingBox(0.1, 0.1, 0.1);
+        var world = MockBlockGetter.block(0, 1, 0, Block.STONE)
+                .set(1, 0, 0, Block.STONE);
+        var start = new Vec(0, 2, 0);
+
+        var result = PathGenerator.LAND_DIAGONAL.generate(world, start, bb);
+        assertThat(result).containsExactly(
+                new Vec(1.5, 1, 0.5)
+        );
+    }
+
+    @Test
+    public void testSingleNeighborUp() {
+        var bb = new BoundingBox(0.1, 0.1, 0.1);
+        var world = MockBlockGetter.block(0, 0, 0, Block.STONE)
+                .set(1, 1, 0, Block.STONE);
+        var start = new Vec(0, 1, 0);
+
+        var result = PathGenerator.LAND_DIAGONAL.generate(world, start, bb);
+        assertThat(result).containsExactly(
+                new Vec(1.5, 2, 0.5)
+        );
+    }
+
+    @Test
     public void testAllNeighborsFlat() {
         var bb = new BoundingBox(0.1, 0.1, 0.1);
         var world = MockBlockGetter.range(
@@ -89,7 +115,8 @@ public class TestPathGeneratorLandDiagonal {
         var bb = new BoundingBox(0.1, 0.1, 0.1);
         var world = MockBlockGetter.block(0, 0, 0, Block.STONE)
                 .set(1, 0, 1, Block.STONE)
-                .set(1, 1, 0, Block.STONE);
+                .set(1, 1, 0, Block.STONE)
+                .set(1, 2, 0, Block.STONE);
         var start = new Vec(0, 1, 0);
 
         var result = PathGenerator.LAND_DIAGONAL.generate(world, start, bb);
@@ -103,13 +130,48 @@ public class TestPathGeneratorLandDiagonal {
                 0, 0, 0,
                 1, 0, 1,
                 Block.STONE
-        ).set(1, 1, 0, Block.STONE);
+        ).set(1, 1, 0, Block.STONE).set(1, 2, 0, Block.STONE);
         var start = new Vec(0, 1, 0);
 
         var result = PathGenerator.LAND_DIAGONAL.generate(world, start, bb);
         assertThat(result).containsExactly(
                 new Vec(0.5, 1, 1.5)
         );
+    }
+
+    @Test
+    public void testSingleNeighborDownHeadHit() {
+        var bb = new BoundingBox(0.6, 1.95, 0.6); // Villager size
+        var world = MockBlockGetter.block(0, 1, 0, Block.STONE)
+                .set(1, 0, 0, Block.STONE)
+                .set(1, 3, 0, Block.STONE); // hits head on this block
+        var start = new Vec(0, 2, 0);
+
+        var result = PathGenerator.LAND_DIAGONAL.generate(world, start, bb);
+        assertThat(result).isEmpty();
+    }
+
+    @Test
+    public void testSingleNeighborUpHeadHit() {
+        var bb = new BoundingBox(0.6, 1.95, 0.6); // Villager size
+        var world = MockBlockGetter.block(0, 0, 0, Block.STONE)
+                .set(1, 1, 0, Block.STONE)
+                .set(0, 3, 0, Block.STONE); // hits head on this block
+        var start = new Vec(0, 1, 0);
+
+        var result = PathGenerator.LAND_DIAGONAL.generate(world, start, bb);
+        assertThat(result).isEmpty();
+    }
+
+    @Test
+    public void testCannotGoDiagonallyAndVertically() {
+        var bb = new BoundingBox(0.6, 1.95, 0.6); // Villager size
+        var world = MockBlockGetter.block(0, 0, 0, Block.STONE)
+                .set(1, 1, 1, Block.STONE);
+        var start = new Vec(0, 1, 0);
+
+        var result = PathGenerator.LAND_DIAGONAL.generate(world, start, bb);
+        assertThat(result).isEmpty();
     }
 
 }

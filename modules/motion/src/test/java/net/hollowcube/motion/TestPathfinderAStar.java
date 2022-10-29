@@ -1,5 +1,6 @@
 package net.hollowcube.motion;
 
+import net.hollowcube.motion.util.SchemBlockGetter;
 import net.hollowcube.test.MockBlockGetter;
 import net.minestom.server.collision.BoundingBox;
 import net.minestom.server.coordinate.Point;
@@ -7,6 +8,8 @@ import net.minestom.server.coordinate.Vec;
 import net.minestom.server.instance.block.Block;
 import net.minestom.server.utils.Direction;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,14 +65,30 @@ public class TestPathfinderAStar {
         );
     }
 
+    @ParameterizedTest(name = "{0}")
+    @ValueSource(strings = {
+            "valid/2_2_corner",
+            "valid/3_3_around",
+            "valid/5_5_maze",
+            "valid/1_4_4_staircase",
+    })
+    public void testSchematics(String name) {
+        var bb = new BoundingBox(0.1, 0.1, 0.1);
+        var world = new SchemBlockGetter(name);
 
-    // A path generator which returns any solid block in a direction (up/down/nsew)
+        var result = Pathfinder.A_STAR.findPath(ALL, world, world.start(), world.goal(), bb);
+        assertThat(result).isNotNull();
+        System.out.println(result);
+    }
+
+
+    // A path generator which returns any air block in a direction (up/down/nsew)
     private static final PathGenerator ALL = (world, pos, bb) -> {
         pos = new Vec(pos.blockX() + 0.5, pos.blockY(), pos.blockZ() + 0.5);
         List<Point> neighbors = new ArrayList<>();
         for (Direction direction : Direction.values()) {
             var neighbor = pos.add(direction.normalX(), direction.normalY(), direction.normalZ());
-            if (world.getBlock(neighbor, Condition.TYPE).isSolid()) continue;
+            if (!world.getBlock(neighbor, Condition.TYPE).isAir()) continue;
             neighbors.add(neighbor);
         }
         return neighbors;

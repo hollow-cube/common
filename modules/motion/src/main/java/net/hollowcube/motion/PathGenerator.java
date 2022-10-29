@@ -57,23 +57,41 @@ public interface PathGenerator {
         for (int x = -1; x <= 1; x++) {
             for (int z = -1; z <= 1; z++) {
                 if (x == 0 && z == 0) continue;
-                //todo up and down horizontals
 
-                var neighbor = pos.add(x, 0, z);
-                // Block below must be solid, or we cannot move to it
-                try {
-                    if (!world.getBlock(neighbor.add(0, -1, 0), Condition.TYPE).isSolid()) continue;
-                } catch (RuntimeException e) {
-                    //todo need a better solution here. Instance throws an exception if the chunk is unloaded
-                    //     but that is kinda awful behavior here. Probably i will need to check if the chunk
-                    //     is loaded, but then i cant use a block getter
-                    continue;
+                int minY = x == 0 || z == 0 ? -1 : 0;
+                int maxY = x == 0 || z == 0 ? 1 : 0;
+                for (int y = minY; y <= maxY; y++) {
+                    var neighbor = pos.add(x, y, z);
+
+                    // Block below must be solid, or we cannot move to it
+                    try {
+                        if (!world.getBlock(neighbor.add(0, -1, 0), Condition.TYPE).isSolid()) continue;
+                    } catch (RuntimeException e) {
+                        //todo need a better solution here. Instance throws an exception if the chunk is unloaded
+                        //     but that is kinda awful behavior here. Probably i will need to check if the chunk
+                        //     is loaded, but then i cant use a block getter
+                        continue;
+                    }
+
+                    // Ensure the movement from pos to neighbor is valid
+                    // This seems fairly slow, might be able to do a faster check for simple cases
+                    if (neighbor.y() > pos.y()) {
+                        // If the target is above the current, try to move to the targetPosition, then over
+                        var target = pos.withY(neighbor.y());
+                        if (PhysicsUtil.testCollisionSwept(world, bb, pos, target)) continue;
+                        if (PhysicsUtil.testCollisionSwept(world, bb, target, neighbor)) continue;
+                    } else if (neighbor.y() < pos.y()) {
+                        // If the target is below the current, try to move to the targetPosition, then down
+                        var target = neighbor.withY(pos.y());
+                        if (PhysicsUtil.testCollisionSwept(world, bb, pos, target)) continue;
+                        if (PhysicsUtil.testCollisionSwept(world, bb, target, neighbor)) continue;
+                    } else {
+                        // Same Y, so we can just make sure the direct movement is valid.
+                        if (PhysicsUtil.testCollisionSwept(world, bb, pos, neighbor)) continue;
+                    }
+
+                    neighbors.add(neighbor);
                 }
-
-                // Ensure the movement from pos to neighbor is valid
-                if (PhysicsUtil.testCollisionSwept(world, bb, pos, neighbor)) continue;
-
-                neighbors.add(neighbor);
             }
         }
         return neighbors;
