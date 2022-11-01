@@ -20,25 +20,25 @@ public class MqlMath {
     /** arccos of value */
     @Query
     public static double acos(double value) {
-        return Math.acos(value);
+        return Math.toDegrees(Math.acos(value));
     }
 
     /** arcsin of value */
     @Query
     public static double asin(double value) {
-        return Math.asin(value);
+        return Math.toDegrees(Math.asin(value));
     }
 
     /** arctan of value */
     @Query
     public static double atan(double value) {
-        return Math.atan(value);
+        return Math.toDegrees(Math.atan(value));
     }
 
     /** arctan of y/x. NOTE: the order of arguments! */
     @Query
     public static double atan2(double y, double x) {
-        return Math.atan2(y, x);
+        return Math.toDegrees(Math.atan2(y, x));
     }
 
     /** Round value up to nearest integral number */
@@ -56,7 +56,7 @@ public class MqlMath {
     /** Cosine (in degrees) of value */
     @Query
     public static double cos(double value) {
-        return Math.cos(value);
+        return Math.cos(Math.toRadians(value));
     }
 
     /** Returns the sum of 'num' random numbers, each with a value from low to high. Note: the generated random numbers are not integers like normal dice. For that, use math.die_roll_integer. */
@@ -183,7 +183,7 @@ public class MqlMath {
     /** Sine (in degrees) of value */
     @Query
     public static double sin(double value) {
-        return Math.sin(value);
+        return Math.sin(Math.toRadians(value));
     }
 
     /** Square root of value */

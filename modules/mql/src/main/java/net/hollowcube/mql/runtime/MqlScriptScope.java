@@ -19,7 +19,7 @@ public class MqlScriptScope implements MqlScope {
     @Override
     public @NotNull MqlValue get(@NotNull String name) {
         return switch (name) {
-            case "math", "m" -> MqlMath.INSTANCE;
+            case "math", "m", "Math" -> MqlMath.INSTANCE;
             case "query", "q" -> query;
             case "temp", "t" -> temp;
             case "variable", "v" -> actor;
