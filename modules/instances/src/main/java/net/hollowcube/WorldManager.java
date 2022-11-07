@@ -1,7 +1,9 @@
 package net.hollowcube;
 
+import net.hollowcube.commands.CommandLoader;
 import net.hollowcube.database.PostgreSQLManager;
 import net.hollowcube.database.SeaweedFS;
+import net.minestom.server.MinecraftServer;
 
 public class WorldManager {
     private static WorldManager instance;
@@ -12,7 +14,7 @@ public class WorldManager {
 
     public static void init() {
         instance = new WorldManager();
-
+        CommandLoader.registerCommands();
     }
 
     private PostgreSQLManager PostgreSQL;
