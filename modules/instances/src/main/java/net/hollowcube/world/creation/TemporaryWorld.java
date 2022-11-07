@@ -3,6 +3,7 @@ package net.hollowcube.world.creation;
 import net.hollowcube.api.ITemporaryWorld;
 import net.hollowcube.world.WorldInitInformation;
 import net.hollowcube.world.creation.chunkgenerator.ChunkGeneratorType;
+import net.minestom.server.MinecraftServer;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.instance.Instance;
 
@@ -15,7 +16,8 @@ public class TemporaryWorld implements ITemporaryWorld {
     private Pos spawnPosition;
 
     public TemporaryWorld(WorldInitInformation worldInitInformation) {
-        this(worldInitInformation.getInstance(), worldInitInformation.getMinecraftVersion(), worldInitInformation.getChunkGeneratorType(), worldInitInformation.getWorldBorderSize(), worldInitInformation.getSpawnPosition());
+        this(worldInitInformation.getInstance(), worldInitInformation.getMinecraftVersion(), worldInitInformation.getChunkGeneratorType(), worldInitInformation.getSpawnPosition());
+        MinecraftServer.getInstanceManager().registerInstance(this.instance);
     }
 
     public TemporaryWorld(Instance instance, int minecraftVersion, ChunkGeneratorType chunkGeneratorType, Pos spawnPosition) {
@@ -23,6 +25,7 @@ public class TemporaryWorld implements ITemporaryWorld {
         this.minecraftVersion = minecraftVersion;
         this.chunkGeneratorType = chunkGeneratorType;
         this.spawnPosition = spawnPosition;
+        MinecraftServer.getInstanceManager().registerInstance(this.instance);
     }
 
     @Override
@@ -38,6 +41,7 @@ public class TemporaryWorld implements ITemporaryWorld {
         if (runnable != null) {
             runnable.run();
         }
+        MinecraftServer.getInstanceManager().unregisterInstance(this.instance);
     }
 
     @Override
