@@ -4,9 +4,9 @@ import com.google.auto.service.AutoService;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.hollowcube.data.NumberSource;
+import net.hollowcube.dfu.ExtraCodecs;
 import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.NotNull;
-import net.hollowcube.dfu.ExtraCodecs;
 
 record ConstantNumberProvider(
         @NotNull Number value

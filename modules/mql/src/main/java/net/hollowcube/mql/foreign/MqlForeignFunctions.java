@@ -58,7 +58,6 @@ public class MqlForeignFunctions {
      * @param method The method to bind. Must be public, may be static.
      * @param bindTo The instance of the method's class to bind to. If the method is static, this must be null.
      * @return An {@link MqlCallable} representing an mql accessible function.
-     *
      * @see <a href="https://github.com/Moulberry/Minestand/blob/master/src/main/java/net/gauntletmc/command/FastInvokerFactory.java">FastInvokerFactory</a>
      */
     public static @NotNull MqlCallable createForeign(@NotNull Method method, @UnknownNullability Object bindTo) {
@@ -153,10 +152,14 @@ public class MqlForeignFunctions {
                     case 3 -> handle.accept3V(javaArgs[0], javaArgs[1], javaArgs[2]);
                     case 4 -> handle.accept4V(javaArgs[0], javaArgs[1], javaArgs[2], javaArgs[3]);
                     case 5 -> handle.accept5V(javaArgs[0], javaArgs[1], javaArgs[2], javaArgs[3], javaArgs[4]);
-                    case 6 -> handle.accept6V(javaArgs[0], javaArgs[1], javaArgs[2], javaArgs[3], javaArgs[4], javaArgs[5]);
-                    case 7 -> handle.accept7V(javaArgs[0], javaArgs[1], javaArgs[2], javaArgs[3], javaArgs[4], javaArgs[5], javaArgs[6]);
-                    case 8 -> handle.accept8V(javaArgs[0], javaArgs[1], javaArgs[2], javaArgs[3], javaArgs[4], javaArgs[5], javaArgs[6], javaArgs[7]);
-                    case 9 -> handle.accept9V(javaArgs[0], javaArgs[1], javaArgs[2], javaArgs[3], javaArgs[4], javaArgs[5], javaArgs[6], javaArgs[7], javaArgs[8]);
+                    case 6 ->
+                            handle.accept6V(javaArgs[0], javaArgs[1], javaArgs[2], javaArgs[3], javaArgs[4], javaArgs[5]);
+                    case 7 ->
+                            handle.accept7V(javaArgs[0], javaArgs[1], javaArgs[2], javaArgs[3], javaArgs[4], javaArgs[5], javaArgs[6]);
+                    case 8 ->
+                            handle.accept8V(javaArgs[0], javaArgs[1], javaArgs[2], javaArgs[3], javaArgs[4], javaArgs[5], javaArgs[6], javaArgs[7]);
+                    case 9 ->
+                            handle.accept9V(javaArgs[0], javaArgs[1], javaArgs[2], javaArgs[3], javaArgs[4], javaArgs[5], javaArgs[6], javaArgs[7], javaArgs[8]);
                 }
             } else {
                 Object result = switch (args.size()) {
@@ -166,10 +169,14 @@ public class MqlForeignFunctions {
                     case 3 -> handle.accept3R(javaArgs[0], javaArgs[1], javaArgs[2]);
                     case 4 -> handle.accept4R(javaArgs[0], javaArgs[1], javaArgs[2], javaArgs[3]);
                     case 5 -> handle.accept5R(javaArgs[0], javaArgs[1], javaArgs[2], javaArgs[3], javaArgs[4]);
-                    case 6 -> handle.accept6R(javaArgs[0], javaArgs[1], javaArgs[2], javaArgs[3], javaArgs[4], javaArgs[5]);
-                    case 7 -> handle.accept7R(javaArgs[0], javaArgs[1], javaArgs[2], javaArgs[3], javaArgs[4], javaArgs[5], javaArgs[6]);
-                    case 8 -> handle.accept8R(javaArgs[0], javaArgs[1], javaArgs[2], javaArgs[3], javaArgs[4], javaArgs[5], javaArgs[6], javaArgs[7]);
-                    case 9 -> handle.accept9R(javaArgs[0], javaArgs[1], javaArgs[2], javaArgs[3], javaArgs[4], javaArgs[5], javaArgs[6], javaArgs[7], javaArgs[8]);
+                    case 6 ->
+                            handle.accept6R(javaArgs[0], javaArgs[1], javaArgs[2], javaArgs[3], javaArgs[4], javaArgs[5]);
+                    case 7 ->
+                            handle.accept7R(javaArgs[0], javaArgs[1], javaArgs[2], javaArgs[3], javaArgs[4], javaArgs[5], javaArgs[6]);
+                    case 8 ->
+                            handle.accept8R(javaArgs[0], javaArgs[1], javaArgs[2], javaArgs[3], javaArgs[4], javaArgs[5], javaArgs[6], javaArgs[7]);
+                    case 9 ->
+                            handle.accept9R(javaArgs[0], javaArgs[1], javaArgs[2], javaArgs[3], javaArgs[4], javaArgs[5], javaArgs[6], javaArgs[7], javaArgs[8]);
                     default -> throw new MqlRuntimeError("unreachable arg error");
                 };
 
@@ -183,25 +190,43 @@ public class MqlForeignFunctions {
     public interface NConsumer<R, P1, P2, P3, P4, P5, P6, P7, P8, P9> {
 
         R accept0R();
+
         R accept1R(P1 p1);
+
         R accept2R(P1 p1, P2 p2);
+
         R accept3R(P1 p1, P2 p2, P3 p3);
+
         R accept4R(P1 p1, P2 p2, P3 p3, P4 p4);
+
         R accept5R(P1 p1, P2 p2, P3 p3, P4 p4, P5 p5);
+
         R accept6R(P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6);
+
         R accept7R(P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6, P7 p7);
+
         R accept8R(P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6, P7 p7, P8 p8);
+
         R accept9R(P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6, P7 p7, P8 p8, P9 p9);
 
         void accept0V();
+
         void accept1V(P1 p1);
+
         void accept2V(P1 p1, P2 p2);
+
         void accept3V(P1 p1, P2 p2, P3 p3);
+
         void accept4V(P1 p1, P2 p2, P3 p3, P4 p4);
+
         void accept5V(P1 p1, P2 p2, P3 p3, P4 p4, P5 p5);
+
         void accept6V(P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6);
+
         void accept7V(P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6, P7 p7);
+
         void accept8V(P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6, P7 p7, P8 p8);
+
         void accept9V(P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6, P7 p7, P8 p8, P9 p9);
 
     }

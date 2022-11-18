@@ -14,7 +14,8 @@ import java.io.StringWriter;
 import java.lang.reflect.Method;
 
 public final class AsmUtil {
-    private AsmUtil() {}
+    private AsmUtil() {
+    }
 
     public static @NotNull String toDescriptor(@NotNull Class<?> clazz) {
         if (boolean.class.equals(clazz)) {

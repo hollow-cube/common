@@ -2,11 +2,11 @@ package net.hollowcube.mql;
 
 import net.hollowcube.mql.parser.MqlParser;
 import net.hollowcube.mql.runtime.MqlScope;
-import net.hollowcube.mql.value.MqlNumberValue;
-import org.jetbrains.annotations.NotNull;
 import net.hollowcube.mql.tree.MqlExpr;
 import net.hollowcube.mql.tree.MqlNumberExpr;
+import net.hollowcube.mql.value.MqlNumberValue;
 import net.hollowcube.mql.value.MqlValue;
+import org.jetbrains.annotations.NotNull;
 
 public record MqlScript(@NotNull MqlExpr expr) {
 

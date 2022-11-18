@@ -15,7 +15,8 @@ public class TestEnvVarOps {
 
     @Test
     public void testBasicString() {
-        record Config(String value) {}
+        record Config(String value) {
+        }
         Codec<Config> codec = RecordCodecBuilder.create(i -> i.group(
                 Codec.STRING.fieldOf("value").forGetter(Config::value)
         ).apply(i, Config::new));
@@ -34,7 +35,8 @@ public class TestEnvVarOps {
 
     @Test
     public void testBasicInt() {
-        record Config(int value) {}
+        record Config(int value) {
+        }
         Codec<Config> codec = RecordCodecBuilder.create(i -> i.group(
                 Codec.INT.fieldOf("value").forGetter(Config::value)
         ).apply(i, Config::new));
@@ -53,11 +55,13 @@ public class TestEnvVarOps {
 
     @Test
     public void testNestedValue() {
-        record InnerConfig(String value) {}
+        record InnerConfig(String value) {
+        }
         Codec<InnerConfig> innerCodec = RecordCodecBuilder.create(i -> i.group(
                 Codec.STRING.fieldOf("value").forGetter(InnerConfig::value)
         ).apply(i, InnerConfig::new));
-        record Config(InnerConfig inner) {}
+        record Config(InnerConfig inner) {
+        }
         Codec<Config> codec = RecordCodecBuilder.create(i -> i.group(
                 innerCodec.fieldOf("inner").forGetter(Config::inner)
         ).apply(i, Config::new));
@@ -76,15 +80,18 @@ public class TestEnvVarOps {
 
     @Test
     public void test2xNestedValue() {
-        record InnerInnerConfig(String value) {}
+        record InnerInnerConfig(String value) {
+        }
         Codec<InnerInnerConfig> innerInnerCodec = RecordCodecBuilder.create(i -> i.group(
                 Codec.STRING.fieldOf("value").forGetter(InnerInnerConfig::value)
         ).apply(i, InnerInnerConfig::new));
-        record InnerConfig(InnerInnerConfig inner) {}
+        record InnerConfig(InnerInnerConfig inner) {
+        }
         Codec<InnerConfig> innerCodec = RecordCodecBuilder.create(i -> i.group(
                 innerInnerCodec.fieldOf("inner").forGetter(InnerConfig::inner)
         ).apply(i, InnerConfig::new));
-        record Config(InnerConfig inner) {}
+        record Config(InnerConfig inner) {
+        }
         Codec<Config> codec = RecordCodecBuilder.create(i -> i.group(
                 innerCodec.fieldOf("inner").forGetter(Config::inner)
         ).apply(i, Config::new));
@@ -103,7 +110,8 @@ public class TestEnvVarOps {
 
     @Test
     public void testList() {
-        record Config(List<String> value) {}
+        record Config(List<String> value) {
+        }
         Codec<Config> codec = RecordCodecBuilder.create(i -> i.group(
                 Codec.STRING.listOf().fieldOf("value").forGetter(Config::value)
         ).apply(i, Config::new));
@@ -124,12 +132,14 @@ public class TestEnvVarOps {
 
     @Test
     public void testListOfObject() {
-        record InnerConfig(String a, String b) {}
+        record InnerConfig(String a, String b) {
+        }
         Codec<InnerConfig> innerCodec = RecordCodecBuilder.create(i -> i.group(
                 Codec.STRING.fieldOf("a").forGetter(InnerConfig::a),
                 Codec.STRING.fieldOf("b").forGetter(InnerConfig::b)
         ).apply(i, InnerConfig::new));
-        record Config(List<InnerConfig> value) {}
+        record Config(List<InnerConfig> value) {
+        }
         Codec<Config> codec = RecordCodecBuilder.create(i -> i.group(
                 innerCodec.listOf().fieldOf("value").forGetter(Config::value)
         ).apply(i, Config::new));
@@ -156,7 +166,9 @@ public class TestEnvVarOps {
     private static class MockEnvVarOps extends EnvVarOps {
         private final Map<String, String> env;
 
-        private MockEnvVarOps(Map<String, String> env) {this.env = env;}
+        private MockEnvVarOps(Map<String, String> env) {
+            this.env = env;
+        }
 
         @Override
         protected String get(String path) {

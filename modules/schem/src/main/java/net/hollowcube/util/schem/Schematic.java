@@ -54,7 +54,7 @@ public record Schematic(
      * Convert the schematic into a {@link RelativeBlockBatch} which can be applied to an instance.
      * The schematic can be rotated around its {@link #offset()} before placement.
      *
-     * @param rotation The rotation to apply to the schematic.
+     * @param rotation      The rotation to apply to the schematic.
      * @param blockModifier If present, called on each individual block before it is placed.
      * @return A {@link RelativeBlockBatch} which represents the schematic file at its offset.
      */
@@ -69,7 +69,7 @@ public record Schematic(
      * <p>
      * Note: The {@link Point} passed to `applicator` is relative to the {@link #offset()}.
      *
-     * @param rotation The rotation to apply before placement.
+     * @param rotation   The rotation to apply before placement.
      * @param applicator The function to call for each block in the schematic.
      */
     public void apply(@NotNull Rotation rotation, @NotNull BiConsumer<Point, Block> applicator) {
@@ -123,7 +123,8 @@ public record Schematic(
             case NONE -> block;
             case CLOCKWISE_90 -> block.withProperty("facing", rotate90(block.getProperty("facing")));
             case CLOCKWISE_180 -> block.withProperty("facing", rotate90(rotate90(block.getProperty("facing"))));
-            case CLOCKWISE_270 -> block.withProperty("facing", rotate90(rotate90(rotate90(block.getProperty("facing")))));
+            case CLOCKWISE_270 ->
+                    block.withProperty("facing", rotate90(rotate90(rotate90(block.getProperty("facing")))));
         };
     }
 

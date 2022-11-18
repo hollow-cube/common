@@ -2,13 +2,13 @@ package net.hollowcube.data.number;
 
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
+import net.hollowcube.data.NumberSource;
+import net.hollowcube.dfu.DFUUtil;
+import net.hollowcube.dfu.ExtraCodecs;
 import net.hollowcube.registry.Registry;
 import net.hollowcube.registry.ResourceFactory;
 import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.NotNull;
-import net.hollowcube.data.NumberSource;
-import net.hollowcube.dfu.DFUUtil;
-import net.hollowcube.dfu.ExtraCodecs;
 
 /**
  * A source of numbers, see <a href="https://minecraft.fandom.com/wiki/Loot_table#Number_Providers">Number

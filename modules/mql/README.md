@@ -1,21 +1,45 @@
 # Minecraft Query Language (mql)
 
-A subset of MoLang (may eventually be a full implementation). Currently implemented as a basic tree-walk interpreter, 
-but may eventually be refactored to something more performant in the future. 
+A subset of MoLang (may eventually be a full implementation). Available as an interpreter or a JIT compiled mode.
+
+## Background
+
+## Install
+
+Artifacts are published on Jitpack for now. Add the following to your `build.gradle(.kts)`:
+
+> Note: {VERSION} should be replaced with the latest version on Jitpack, you can find
+> this [here](https://jitpack.io/#hollow-cube/common).
+
+```kotlin
+dependencies {
+    implementation("com.github.hollow-cube.common:mql:{VERSION}")
+}
+```
 
 ## Syntax
 
 `mql` supports the following syntax
-* [Query functions](#query-functions)
 
-## Query Functions
+* Query functions
+* Math & Comparison operators (`+`, `*`, `==`, etc)
 
-`mql` implements a subset of the query functions in MoLang. They are described below.
+## Usage
 
-| Function      | Status | Description                                                                                                |
-|---------------|--------|------------------------------------------------------------------------------------------------------------|
-| q.time_of_day | +      | Gets the current time of day in the world as a decimal: midnight=0.0, sunrise=0.25, noon=0.5, sunset=0.75. |
-| q.has_target  | +      | Returns true if the entity has a target, false otherwise.                                                  |
-| q.is_alive    | +      | Returns true if the entity is alive, false otherwise                                                       |
-|               |        |                                                                                                            |
-|               |        |                                                                                                            |
+See the docs (todo).
+
+## Future Plans
+
+* Unify the interpreter and compiler apis
+    * Allows for fallback if using unsupported JIT features, permission issues, etc.
+* Temp variables
+* Public variables/querying other scripts
+* Other data types & functions
+
+## Contributing
+
+Issues and PRs are welcome! Please refer to [CONTRIBUTING.md](../../CONTRIBUTING.md) for more information.
+
+## License
+
+This project is licensed under the [MIT License](../../LICENSE).

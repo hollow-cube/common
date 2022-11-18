@@ -6,6 +6,7 @@ import com.google.gson.JsonObject;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 import net.hollowcube.Env;
+import net.hollowcube.dfu.DFUUtil;
 import net.minestom.server.utils.NamespaceID;
 import net.minestom.server.utils.collection.ObjectArray;
 import net.minestom.server.utils.validate.Check;
@@ -14,7 +15,6 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import net.hollowcube.dfu.DFUUtil;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -128,7 +128,8 @@ public interface Registry<T extends Resource> {
             registry = JsonOps.INSTANCE
                     .withDecoder(mapCodec)
                     .apply(content)
-                    .getOrThrow(false, ignored -> {})
+                    .getOrThrow(false, ignored -> {
+                    })
                     .getFirst();
         } catch (RuntimeException e) {
             Logger logger = LoggerFactory.getLogger(Registry.class);

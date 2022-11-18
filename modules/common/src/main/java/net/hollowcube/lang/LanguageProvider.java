@@ -1,10 +1,10 @@
 package net.hollowcube.lang;
 
+import net.hollowcube.util.ComponentUtil;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextReplacementConfig;
 import net.kyori.adventure.text.TranslatableComponent;
 import org.jetbrains.annotations.NotNull;
-import net.hollowcube.util.ComponentUtil;
 
 import java.io.IOException;
 import java.io.InputStream;

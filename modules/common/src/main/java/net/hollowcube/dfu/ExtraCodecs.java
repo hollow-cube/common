@@ -17,7 +17,8 @@ import java.util.Locale;
 import java.util.function.Supplier;
 
 public final class ExtraCodecs {
-    private ExtraCodecs() {}
+    private ExtraCodecs() {
+    }
 
     public static final PrimitiveCodec<Number> NUMBER = new PrimitiveCodec<>() {
         @Override

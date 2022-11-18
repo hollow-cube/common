@@ -1,9 +1,9 @@
 package net.hollowcube.config;
 
 import com.mojang.serialization.Codec;
+import net.hollowcube.dfu.EnvVarOps;
 import net.minestom.server.utils.validate.Check;
 import org.jetbrains.annotations.NotNull;
-import net.hollowcube.dfu.EnvVarOps;
 
 import java.util.Locale;
 

@@ -2,7 +2,7 @@ package net.hollowcube.registry;
 
 import org.jetbrains.annotations.NotNull;
 
-public class MissingEntryException extends RuntimeException{
+public class MissingEntryException extends RuntimeException {
     private final @NotNull Registry<?> registry;
     private final @NotNull String key;
 
