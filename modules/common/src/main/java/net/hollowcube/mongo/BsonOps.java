@@ -29,7 +29,8 @@ public class BsonOps implements DynamicOps<BsonValue> {
 
     public static final BsonOps INSTANCE = new BsonOps();
 
-    private BsonOps() {}
+    private BsonOps() {
+    }
 
     @Override
     public BsonValue empty() {

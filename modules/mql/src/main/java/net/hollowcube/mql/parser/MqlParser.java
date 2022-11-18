@@ -81,7 +81,9 @@ public class MqlParser {
         return lhs;
     }
 
-    /** Parses a possible left side expression. */
+    /**
+     * Parses a possible left side expression.
+     */
     private @NotNull MqlExpr lhs() {
         MqlToken token = lexer.next();
         if (token == null) throw new MqlParseError("unexpected end of input");

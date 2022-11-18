@@ -1,8 +1,8 @@
 package net.hollowcube.mql.runtime;
 
 import net.hollowcube.mql.value.MqlHolder;
-import org.jetbrains.annotations.NotNull;
 import net.hollowcube.mql.value.MqlValue;
+import org.jetbrains.annotations.NotNull;
 
 public interface MqlScope extends MqlHolder {
 

@@ -7,7 +7,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public final class MinestomTruth {
-    private MinestomTruth() {}
+    private MinestomTruth() {
+    }
 
     public static @NotNull EntitySubject assertThat(@Nullable Entity actual) {
         return EntitySubject.assertThat(actual);

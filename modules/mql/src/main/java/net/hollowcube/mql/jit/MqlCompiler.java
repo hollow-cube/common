@@ -117,12 +117,15 @@ public class MqlCompiler<T> {
                 case NULL_COALESCE -> {
                     throw new RuntimeException("Null coalesce operator not supported in JIT mode");
                 }
-                case GTE -> method.visitMethodInsn(INVOKESTATIC, AsmUtil.toName(MqlRuntime.class), "gte", "(DD)D", false);
+                case GTE ->
+                        method.visitMethodInsn(INVOKESTATIC, AsmUtil.toName(MqlRuntime.class), "gte", "(DD)D", false);
                 case GE -> method.visitMethodInsn(INVOKESTATIC, AsmUtil.toName(MqlRuntime.class), "ge", "(DD)D", false);
-                case LTE -> method.visitMethodInsn(INVOKESTATIC, AsmUtil.toName(MqlRuntime.class), "lte", "(DD)D", false);
+                case LTE ->
+                        method.visitMethodInsn(INVOKESTATIC, AsmUtil.toName(MqlRuntime.class), "lte", "(DD)D", false);
                 case LE -> method.visitMethodInsn(INVOKESTATIC, AsmUtil.toName(MqlRuntime.class), "le", "(DD)D", false);
                 case EQ -> method.visitMethodInsn(INVOKESTATIC, AsmUtil.toName(MqlRuntime.class), "eq", "(DD)D", false);
-                case NEQ -> method.visitMethodInsn(INVOKESTATIC, AsmUtil.toName(MqlRuntime.class), "neq", "(DD)D", false);
+                case NEQ ->
+                        method.visitMethodInsn(INVOKESTATIC, AsmUtil.toName(MqlRuntime.class), "neq", "(DD)D", false);
             }
 
             return null;
@@ -316,7 +319,8 @@ public class MqlCompiler<T> {
         }
     }
 
-    private record ParamInfo(String[] names, ClassInfo ci, boolean isGeneric) {}
+    private record ParamInfo(String[] names, ClassInfo ci, boolean isGeneric) {
+    }
 
     private static class ClassInfo {
         private final Class<?> type;

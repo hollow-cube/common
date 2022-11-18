@@ -15,6 +15,7 @@ public class MqlLexer {
 
     /**
      * Returns the next token in the input, or null if the end of file was reached.
+     *
      * @throws MqlParseError if there is an unexpected token.
      */
     public @Nullable MqlToken next() {
@@ -36,6 +37,7 @@ public class MqlLexer {
     /**
      * Returns the next token <i>without</i> stepping to the next token in the input,
      * or null if the end of file was reached.
+     *
      * @throws MqlParseError if there is an unexpected token.
      */
     public @Nullable MqlToken peek() {
