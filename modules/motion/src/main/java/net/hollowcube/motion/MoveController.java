@@ -27,16 +27,13 @@ public interface MoveController {
             @NotNull Point goal
     );
 
-    interface Factory {
-        MoveController create();
-    }
-
     /**
      * Default land-bound movement controller. Currently very basic (eg does not know how to swim)
      */
     Supplier<MoveController> WALKING = () -> new MoveController() {
         private final Cooldown jumpCooldown = new Cooldown(Duration.of(20, TimeUnit.SERVER_TICK));
 
+        @SuppressWarnings("UnstableApiUsage")
         @Override
         public void moveTowards(@NotNull LivingEntity entity, @NotNull Point goal) {
             var now = System.currentTimeMillis();

@@ -186,11 +186,6 @@ public final class MotionNavigator {
                 .color(0xFFFFFFFF)
                 .layer(Layer.TOP)
                 .build());
-        EntityHeadLookPacket headLook = new EntityHeadLookPacket(entity.getEntityId(), entity.getPosition().yaw());
-        PacketUtils.sendGroupedPacket(entity.getViewers(), headLook);
-        EntityRotationPacket rotation = new EntityRotationPacket(entity.getEntityId(), entity.getPosition().yaw(), entity.getPosition().pitch(), true);
-        PacketUtils.sendGroupedPacket(entity.getViewers(), rotation);
-
 
         builder.build()
                 .sendTo(entity.getViewersAsAudience());
