@@ -13,7 +13,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Sync Wiki Changes
-        uses: Andrew-Chen-Wang/github-wiki-action@v2
+        uses: Andrew-Chen-Wang/github-wiki-action@v3
         env:
           WIKI_DIR: docs/
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
