@@ -1,4 +1,3 @@
-# Using MQL
 MQL may be used either in an interpreted mode, which may support features not present in compiled mode.
 
 ### Interpreted

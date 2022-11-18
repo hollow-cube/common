@@ -26,7 +26,7 @@ dependencies {
 
 ## Usage
 
-See the docs (todo).
+See the [docs](https://github.com/hollow-cube/common/wiki/Basic-Usage).
 
 ## Future Plans
 
