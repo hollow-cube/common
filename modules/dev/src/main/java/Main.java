@@ -1,12 +1,11 @@
 import net.hollowcube.WorldManager;
-import net.hollowcube.world.World;
+import net.hollowcube.database.PostgreSQLManager;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.Player;
 import net.minestom.server.event.GlobalEventHandler;
 import net.minestom.server.event.player.PlayerLoginEvent;
 import net.minestom.server.extras.MojangAuth;
-import net.minestom.server.instance.Instance;
 import net.minestom.server.instance.InstanceContainer;
 import net.minestom.server.instance.InstanceManager;
 import net.minestom.server.instance.block.Block;
@@ -35,5 +34,9 @@ public class Main {
         });
 
         WorldManager.init();
+        PostgreSQLManager postgresql = WorldManager.getInstance().getPostgreSQL();
+        postgresql.execute("CREATE TABLE IF NOT EXISTS instances (" +
+                "id SERIAL PRIMARY KEY, " +
+                "alias VARCHAR(100) )");
     }
 }
