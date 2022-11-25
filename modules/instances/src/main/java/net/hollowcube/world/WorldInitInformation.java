@@ -5,7 +5,6 @@ import net.minestom.server.coordinate.Pos;
 import net.minestom.server.instance.Instance;
 
 public class WorldInitInformation {
-    private static final double DEFAULT_WORLD_BORDER_SIZE = 1000.0F;
     private static final Pos DEFAULT_SPAWN_POSITION = new Pos(0.5, 60, 0.5);
     private final Instance instance;
     private final String id;

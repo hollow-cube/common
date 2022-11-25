@@ -9,7 +9,6 @@ import net.minestom.server.instance.Instance;
 
 public class TemporaryWorld implements ITemporaryWorld {
     private final Instance instance;
-    private final int minecraftVersion; //We might not need this if we just force latest version
     private final ChunkGeneratorType chunkGeneratorType;
     // We can implement this for specifically map maker worlds (or other world types which extend this)
     //private double worldBorderSize;
@@ -22,7 +21,6 @@ public class TemporaryWorld implements ITemporaryWorld {
 
     public TemporaryWorld(Instance instance, int minecraftVersion, ChunkGeneratorType chunkGeneratorType, Pos spawnPosition) {
         this.instance = instance;
-        this.minecraftVersion = minecraftVersion;
         this.chunkGeneratorType = chunkGeneratorType;
         this.spawnPosition = spawnPosition;
         MinecraftServer.getInstanceManager().registerInstance(this.instance);

@@ -12,9 +12,6 @@ import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 
 public class PostgreSQLManager {
-    // Test server string, used by default.
-    private String url = "jdbc:postgresql://localhost/postgres?user=postgres&password=starlight";
-
     private static PostgreSQLManager postgreSQLManager;
     private String address;
     private int port;
@@ -28,10 +25,10 @@ public class PostgreSQLManager {
     public static void init() {
         postgreSQLManager = new PostgreSQLManager();
         String address = "localhost";
-        int port = 3306;
-        String database = "new_omega";
-        String username = "root";
-        String password = "";
+        int port = 5432;
+        String database = "postgres";
+        String username = "postgres";
+        String password = "starlight";
         postgreSQLManager.connectToPostgreSQL(address, port, username, password);
     }
 
@@ -110,6 +107,10 @@ public class PostgreSQLManager {
         return postgreSQL.getConnection().prepareStatement(str).executeQuery();
     }
 
+    public boolean execute(String str) throws SQLException {
+        return postgreSQL.getConnection().prepareStatement(str).execute();
+    }
+
     public static class PostgreSQL {
 
         private final String host;
@@ -138,7 +139,7 @@ public class PostgreSQLManager {
                 Class.forName("org.postgresql.Driver");
                 return this.conn = DriverManager.getConnection(
                         "jdbc:postgresql://" + this.host + ":" + this.port +
-                                "?autoReconnect=true&useSSL=false", this.user, this.password);
+                                "/?autoReconnect=true&useSSL=false", this.user, this.password);
             } catch (SQLException | ClassNotFoundException e) {
                 e.printStackTrace();
             }
