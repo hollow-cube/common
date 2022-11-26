@@ -7,6 +7,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Properties;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
@@ -137,9 +138,16 @@ public class PostgreSQLManager {
         public Connection openConnection() {
             try {
                 Class.forName("org.postgresql.Driver");
-                return this.conn = DriverManager.getConnection(
-                        "jdbc:postgresql://" + this.host + ":" + this.port +
-                                "/?autoReconnect=true&useSSL=false", this.user, this.password);
+                var uri = String.format("jdbc:postgresql://%s:%d/%s", host, port, database);
+                var props = new Properties();
+                props.setProperty("user", this.user);
+                props.setProperty("password", this.password);
+                props.setProperty("ssl", "false");
+                return this.conn = DriverManager.getConnection(uri, props);
+//
+//                return this.conn = DriverManager.getConnection(
+//                        "jdbc:postgresql://" + this.host + ":" + this.port +
+//                                "/?autoReconnect=true&useSSL=false", this.user, this.password);
             } catch (SQLException | ClassNotFoundException e) {
                 e.printStackTrace();
             }
