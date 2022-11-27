@@ -32,7 +32,7 @@ subprojects {
         implementation("com.google.auto.service:auto-service-annotations:1.0.1")
 
         // Minestom
-        compileOnly("com.github.minestommmo:Minestom:c6c97162a6")
+        compileOnly("com.github.hollow-cube:Minestom:675b3170a1")
 
         // Testing
         testImplementation(project(":modules:test"))

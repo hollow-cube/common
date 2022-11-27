@@ -4,7 +4,7 @@ plugins {
 
 dependencies {
     // Minestom
-    api("com.github.minestommmo:Minestom:c6c97162a6")
+    api("com.github.minestommmo:Minestom:675b3170a1")
 
     // JUnit
     api("org.junit.jupiter:junit-jupiter-api:5.9.0")

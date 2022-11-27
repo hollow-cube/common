@@ -7,4 +7,5 @@ include(":modules:dev")
 // Standalone modules
 include(":modules:mql")
 include(":modules:schem")
+include(":modules:block-placement")
 include(":modules:test")
