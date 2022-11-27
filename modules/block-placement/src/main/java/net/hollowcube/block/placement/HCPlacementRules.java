@@ -1,17 +1,14 @@
 package net.hollowcube.block.placement;
 
 import net.minestom.server.MinecraftServer;
-import net.minestom.server.event.EventBinding;
-import net.minestom.server.event.EventFilter;
+import net.minestom.server.event.*;
 import net.minestom.server.event.player.PlayerBlockPlaceEvent;
 import net.minestom.server.event.player.PlayerBlockUpdateNeighborEvent;
 import net.minestom.server.event.trait.BlockEvent;
 import net.minestom.server.gamedata.tags.Tag;
 import net.minestom.server.instance.block.Block;
-import net.minestom.server.utils.NamespaceID;
 
 import java.util.Objects;
-import java.util.Set;
 
 @SuppressWarnings("UnstableApiUsage")
 public final class HCPlacementRules {
@@ -170,24 +167,31 @@ public final class HCPlacementRules {
     /* Init */
 
     public static void init() {
+        var eventNode = EventNode.type("hc-rotation", EventFilter.BLOCK);
+        MinecraftServer.getGlobalEventHandler().addChild(eventNode);
+        init(eventNode);
+    }
+
+    public static void init(EventNode<BlockEvent> handler) {
+
         // Replacements
-        MinecraftServer.getGlobalEventHandler().register(WALL_REPLACEMENT_BINDING);
+        handler.register(WALL_REPLACEMENT_BINDING);
 
         // Blockstates
-        MinecraftServer.getGlobalEventHandler().register(ROTATION_BINDING);
-        MinecraftServer.getGlobalEventHandler().register(AXIS_BINDING);
-        MinecraftServer.getGlobalEventHandler().register(HALF_BINDING);
+        handler.register(ROTATION_BINDING);
+        handler.register(AXIS_BINDING);
+        handler.register(HALF_BINDING);
 
         // Specific blocks
-        MinecraftServer.getGlobalEventHandler().register(STAIRS_BINDING);
-        MinecraftServer.getGlobalEventHandler().register(WALLS_BINDING);
-        MinecraftServer.getGlobalEventHandler().register(SLAB_BINDING);
-        MinecraftServer.getGlobalEventHandler().register(BUTTON_BINDING);
-        MinecraftServer.getGlobalEventHandler().register(CHEST_BINDING);
-        MinecraftServer.getGlobalEventHandler().register(FENCE_BINDING);
-        MinecraftServer.getGlobalEventHandler().register(GLOW_LICHEN_BINDING);
-        MinecraftServer.getGlobalEventHandler().register(VINE_BINDING);
-        MinecraftServer.getGlobalEventHandler().register(POINTED_DRIPSTONE_BINDING);
+        handler.register(STAIRS_BINDING);
+        handler.register(WALLS_BINDING);
+        handler.register(SLAB_BINDING);
+        handler.register(BUTTON_BINDING);
+        handler.register(CHEST_BINDING);
+        handler.register(FENCE_BINDING);
+        handler.register(GLOW_LICHEN_BINDING);
+        handler.register(VINE_BINDING);
+        handler.register(POINTED_DRIPSTONE_BINDING);
 
         for (short stateId = 0; stateId < Short.MAX_VALUE; stateId++) {
             Block block = Block.fromStateId(stateId);
