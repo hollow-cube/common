@@ -20,7 +20,7 @@ public class SchematicBuilder {
     }
 
     public void setOffset(@NotNull Point point) {
-        this.offset = offset;
+        this.offset = point;
     }
 
     public Schematic toSchematic() {
@@ -52,27 +52,33 @@ public class SchematicBuilder {
                 zMax = point.blockZ();
             }
         }
-        int xSize = xMax - xMin;
-        int ySize = yMax - yMin;
-        int zSize = zMax - zMin;
+        int xSize = xMax - xMin + 1;
+        int ySize = yMax - yMin + 1;
+        int zSize = zMax - zMin + 1;
         Point size = new Vec(xSize, ySize, zSize);
 
         // Map of Block -> Palette ID
         HashMap<Block, Integer> paletteMap = new HashMap<>();
-        paletteMap.put(Block.AIR, 0);
 
-        byte[] blocks = new byte[size.blockX() * size.blockY() * size.blockZ()];
-        // To convert point to index into array : (pointX - xMin) * xSize + (pointY - yMin) * ySize + (pointZ - zMin) * zSize
+        // Size of rectangular prism: 2(wl+hl+hw)
+        byte[] blocks = new byte[xSize * ySize * zSize];
+        // Determine if we have air in our palette
+        // If the number of blocks in our blockset is equal to our byte array, we know we shouldn't fill in air as default since we have taken up every space
+        if(blocks.length < blockSet.size()) {
+            paletteMap.put(Block.AIR, 0);
+        }
+
+        // To convert point to index into array : ????????????
         for (var entry : blockSet.entrySet()) {
             Point point = entry.getKey();
-            int blockId = -1;
+            int blockId;
             if (!paletteMap.containsKey(entry.getValue())) {
                 blockId = paletteMap.size();
                 paletteMap.put(entry.getValue(), paletteMap.size());
             } else {
                 blockId = paletteMap.get(entry.getValue());
             }
-            int index = (point.blockX() - xMin) * xSize + (point.blockY() - yMin) * ySize + (point.blockZ() - zMin) * zSize;
+            int index = (point.blockX() - xMin) + (point.blockY() - yMin) + (point.blockZ() - zMin);
             blocks[index] = (byte) blockId;
         }
 
