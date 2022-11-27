@@ -164,8 +164,4 @@ public record Schematic(
             default -> "north";
         };
     }
-
-    public static @NotNull Schematic fromBlockGetter(Block.Getter getter) {
-        throw new UnsupportedOperationException("Not yet implemented");
-    }
 }
