@@ -3,10 +3,13 @@ package net.hollowcube.util.schem;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Vec;
 import net.minestom.server.instance.block.Block;
+import net.minestom.server.utils.Utils;
 import org.jetbrains.annotations.NotNull;
 
+import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 public class SchematicBuilder {
 
@@ -60,26 +63,46 @@ public class SchematicBuilder {
         // Map of Block -> Palette ID
         HashMap<Block, Integer> paletteMap = new HashMap<>();
 
-        // Size of rectangular prism: 2(wl+hl+hw)
-        byte[] blocks = new byte[xSize * ySize * zSize];
         // Determine if we have air in our palette
-        // If the number of blocks in our blockset is equal to our byte array, we know we shouldn't fill in air as default since we have taken up every space
-        if(blocks.length < blockSet.size()) {
+        // If the number of blocks in our blockset is equal to our size, we know we shouldn't fill in air as default since we have taken up every space
+        if(xSize * ySize * zSize > blockSet.size()) {
             paletteMap.put(Block.AIR, 0);
         }
 
-        // To convert point to index into array : ????????????
-        for (var entry : blockSet.entrySet()) {
-            Point point = entry.getKey();
-            int blockId;
-            if (!paletteMap.containsKey(entry.getValue())) {
-                blockId = paletteMap.size();
-                paletteMap.put(entry.getValue(), paletteMap.size());
-            } else {
-                blockId = paletteMap.get(entry.getValue());
+        // This is horribly memory and space inefficient, but I cannot think of a better way of doing this right now
+        ByteBuffer blockBytes = ByteBuffer.allocate(1024);
+        Set<Point> pointSet = blockSet.keySet();
+        for (int x = xMin; x <= xMax; x++) {
+            for (int y = yMin; y <= yMax; y++) {
+                for (int z = zMin; z <= zMax; z++) {
+                    // Should be okay, since this is a short
+                    // Also matt said so
+                    if (blockBytes.remaining() <= 3) {
+                        byte[] oldBytes = blockBytes.array();
+                        blockBytes = ByteBuffer.allocate(blockBytes.capacity() * 2);
+                        blockBytes.put(oldBytes);
+                    }
+                    boolean foundPoint = false;
+                    for (Point point : pointSet) {
+                        if(point.blockX() == x && point.blockY() == y && point.blockZ() == z) {
+                            Block block = blockSet.get(point);
+                            int blockId;
+                            if (!paletteMap.containsKey(block)) {
+                                blockId = paletteMap.size();
+                                paletteMap.put(block, paletteMap.size());
+                            } else {
+                                blockId = paletteMap.get(block);
+                            }
+                            foundPoint = true;
+                            Utils.writeVarInt(blockBytes, blockId);
+                            break;
+                        }
+                    }
+                    if(!foundPoint) {
+                        Utils.writeVarInt(blockBytes, 0);
+                    }
+                }
             }
-            int index = (point.blockX() - xMin) + (point.blockY() - yMin) + (point.blockZ() - zMin);
-            blocks[index] = (byte) blockId;
         }
 
         Block[] palette = new Block[paletteMap.size()];
@@ -91,7 +114,7 @@ public class SchematicBuilder {
                 size,
                 offset,
                 palette,
-                blocks
+                blockBytes.array()
         );
     }
 }
