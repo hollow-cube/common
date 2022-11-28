@@ -20,7 +20,7 @@ public class WorldManager {
         PostgreSQLManager.init();
         PostgreSQL = PostgreSQLManager.get();
         seaweedFS = new SeaweedFS();
-        seaweedFS.connectToSeaweedFs();
+        //seaweedFS.connectToSeaweedFs();
         CommandLoader.registerCommands();
     }
 

@@ -3,7 +3,7 @@ version: '3'
 services:
   postgres:
     image: 'postgres:latest'
-    container_name: 'postgres'
+    container_name: 'hollowcube'
     ports:
       - '5432:5432'
     environment:
