@@ -3,11 +3,10 @@ package net.hollowcube.util.schem;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.instance.block.Block;
 import org.jetbrains.annotations.NotNull;
+import org.jglrxavpok.hephaistos.nbt.NBTWriter;
 import org.jglrxavpok.hephaistos.nbt.mutable.MutableNBTCompound;
 
-import java.io.DataOutputStream;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class SchematicWriter {
@@ -37,6 +36,9 @@ public class SchematicWriter {
             palette.setInt(blocks[i].name(), i);
         }
         schematicNBT.set("Palette", palette.toCompound());
-        schematicNBT.toCompound().writeContents(new DataOutputStream(Files.newOutputStream(schemPath)));
+
+        try (NBTWriter writer = new NBTWriter(schemPath)) {
+            writer.writeRaw(schematicNBT.toCompound());
+        }
     }
 }
