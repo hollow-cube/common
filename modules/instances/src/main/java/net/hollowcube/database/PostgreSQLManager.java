@@ -3,6 +3,7 @@ package net.hollowcube.database;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.timer.ExecutionType;
 
+import java.io.Console;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -30,7 +31,7 @@ public class PostgreSQLManager {
         String database = "postgres";
         String username = "postgres";
         String password = "starlight";
-        postgreSQLManager.connectToPostgreSQL(address, port, username, password);
+        postgreSQLManager.connectToPostgreSQL(address, port, username, password, database);
     }
 
     public static PostgreSQLManager get() {
@@ -43,25 +44,31 @@ public class PostgreSQLManager {
      * @param port
      * @param username
      * @param password
+     * @param database
      */
-    public static void init(String address, int port, String username, String password) {
+    public static void init(String address, int port, String username, String password, String database) {
         postgreSQLManager = new PostgreSQLManager();
-        postgreSQLManager.connectToPostgreSQL(address, port, username, password);
+        postgreSQLManager.connectToPostgreSQL(address, port, username, password, database);
     }
 
     public Executor executor;
     public PostgreSQL postgreSQL;
     public boolean isConnected = false;
 
-    public void connectToPostgreSQL(String address, int port, String username, String password) {
+    public void connectToPostgreSQL(String address, int port, String username, String password, String database) {
         this.executor = Executors.newCachedThreadPool();
         this.address = address;
         this.port = port;
         this.username = username;
         this.password = password;
-        this.postgreSQL = new PostgreSQL(address, port, username, password, database);
-        if(postgreSQL.isConnected()) {
-            isConnected = true;
+        this.database = database;
+        try {
+            this.postgreSQL = new PostgreSQL(address, port, username, password, database);
+            if(postgreSQL.isConnected()) {
+                isConnected = true;
+            }
+        } catch (SQLException s) {
+            s.printStackTrace();
         }
     }
 
@@ -121,7 +128,7 @@ public class PostgreSQLManager {
         private final int port;
         private Connection conn;
 
-        public PostgreSQL(String host, int port, String user, String password, String database) {
+        public PostgreSQL(String host, int port, String user, String password, String database) throws SQLException {
             this.host = host;
             this.port = port;
             this.user = user;
@@ -135,20 +142,22 @@ public class PostgreSQLManager {
          * using the given login credentials.
          * @return connection object
          */
-        public Connection openConnection() {
+        public Connection openConnection() throws SQLException {
             try {
                 Class.forName("org.postgresql.Driver");
-                var uri = String.format("jdbc:postgresql://%s:%d/%s", host, port, database);
+                var uri = String.format("jdbc:postgresql://%s:%d/%s", "150.136.14.28", 5432, "mapmaker");
                 var props = new Properties();
-                props.setProperty("user", this.user);
-                props.setProperty("password", this.password);
+                props.setProperty("user", "postgres");
+                props.setProperty("password", "7aBQb6tYAbu5FUYffYstGg8G");
                 props.setProperty("ssl", "false");
                 return this.conn = DriverManager.getConnection(uri, props);
-//
-//                return this.conn = DriverManager.getConnection(
-//                        "jdbc:postgresql://" + this.host + ":" + this.port +
-//                                "/?autoReconnect=true&useSSL=false", this.user, this.password);
-            } catch (SQLException | ClassNotFoundException e) {
+//                var uri = String.format("jdbc:postgresql://%s:%d/%s", host, port, database);
+//                var props = new Properties();
+//                props.setProperty("user", this.user);
+//                props.setProperty("password", this.password);
+//                props.setProperty("ssl", "false");
+//                return this.conn = DriverManager.getConnection(uri, props);
+            } catch (ClassNotFoundException e) {
                 e.printStackTrace();
             }
             return null;
