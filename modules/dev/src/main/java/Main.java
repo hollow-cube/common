@@ -1,5 +1,3 @@
-import net.hollowcube.WorldManager;
-import net.hollowcube.database.PostgreSQLManager;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.Player;
@@ -32,11 +30,5 @@ public class Main {
             event.setSpawningInstance(instanceContainer);
             player.setRespawnPoint(new Pos(0, 42, 0));
         });
-
-        WorldManager.init();
-        PostgreSQLManager postgresql = WorldManager.getInstance().getPostgreSQL();
-        postgresql.execute("CREATE TABLE IF NOT EXISTS instances (" +
-                "id SERIAL PRIMARY KEY, " +
-                "alias VARCHAR(100) )");
     }
 }
