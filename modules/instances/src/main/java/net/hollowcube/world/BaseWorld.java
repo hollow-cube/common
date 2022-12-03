@@ -23,6 +23,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ForkJoinPool;
 
 @SuppressWarnings("UnstableApiUsage")
 public class BaseWorld implements World {
@@ -103,21 +104,20 @@ public class BaseWorld implements World {
                     return worldManager.fileStorage().uploadFile(id,
                             new ByteArrayInputStream(compressed.getCompressedData()),
                             compressed.getCompressedData().length);
-                })
-                .thenApply(fileId -> {
-                    try {
-                        FileUtil.deleteDirectory(worldDir());
-                    } catch (Exception e) {
-                        throw new RuntimeException(e);
-                    }
-                    return fileId;
                 });
     }
 
     @Override
     public @NotNull CompletableFuture<Void> unloadWorld() {
         MinecraftServer.getInstanceManager().unregisterInstance(instance);
-        return CompletableFuture.completedFuture(null);
+        return CompletableFuture.runAsync(() -> {
+            try {
+                if (Files.exists(worldDir()))
+                    FileUtil.deleteDirectory(worldDir());
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }, ForkJoinPool.commonPool());
     }
 
     private void handlePlayerSpawn(@NotNull PlayerSpawnEvent event) {
