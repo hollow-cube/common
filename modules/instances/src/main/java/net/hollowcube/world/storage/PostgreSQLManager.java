@@ -1,9 +1,8 @@
-package net.hollowcube.database;
+package net.hollowcube.world.storage;
 
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.timer.ExecutionType;
 
-import java.io.Console;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -13,6 +12,9 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 
+// ==============
+// UNUSED FOR NOW
+// ==============
 public class PostgreSQLManager {
     private static PostgreSQLManager postgreSQLManager;
     private String address;
