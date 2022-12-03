@@ -1,5 +1,7 @@
 package net.hollowcube.world.compression;
 
+import com.github.luben.zstd.Zstd;
+import net.hollowcube.world.util.FileUtil;
 import net.minestom.server.world.DimensionType;
 
 import java.io.ByteArrayOutputStream;
@@ -10,8 +12,6 @@ import java.util.List;
 import java.util.zip.Deflater;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
-
-import com.github.luben.zstd.Zstd;
 
 public class WorldCompressor {
     // valid values: 0-22 (0 = no compression; 22 = highest compression)
@@ -26,7 +26,7 @@ public class WorldCompressor {
      */
     public static CompressedWorldData compressWorldRegionFiles(final String worldname, final DimensionType dimensionType) {
         // get correct path to region files
-        String path = null; //TODO figure out correct world file path
+        String path = worldname + "/region"; //TODO figure out correct world file path
         /**switch (dimensionType) {
          case NORMAL:
          path = Bukkit.getWorldContainer().toPath() + "//" + worldname + "//region";
@@ -41,7 +41,7 @@ public class WorldCompressor {
         // get the region folder
         File folder = new File(path);
         // put all .mca region files into a list
-        List<File> fileList = CompressionUtils.getFileList(folder);
+        List<File> fileList = FileUtil.getFileList(folder);
         // create ByteArrayOutputStream and ZipOutputStream to put all region files into an uncompressed zip file
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         ZipOutputStream zipFile = new ZipOutputStream(bos);

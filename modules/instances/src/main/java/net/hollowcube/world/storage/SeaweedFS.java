@@ -1,4 +1,4 @@
-package net.hollowcube.database;
+package net.hollowcube.world.storage;
 
 import net.anumbrella.seaweedfs.core.FileSource;
 import net.anumbrella.seaweedfs.core.FileTemplate;
