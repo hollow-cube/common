@@ -148,10 +148,6 @@ public final class HCPlacementRules {
         return block.compare(Block.VINE);
     }
 
-    private static boolean isLever(Block block) {
-        return block.compare(Block.LEVER);
-    }
-
     private static boolean hasRotation(Block block) {
         return block.getProperty("facing") != null;
     }
