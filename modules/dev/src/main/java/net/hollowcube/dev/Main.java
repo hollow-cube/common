@@ -1,3 +1,5 @@
+package net.hollowcube.dev;
+
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.Player;

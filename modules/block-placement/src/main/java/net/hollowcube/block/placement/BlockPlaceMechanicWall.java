@@ -18,8 +18,6 @@ public class BlockPlaceMechanicWall {
         event.setShouldUpdateNeighbors(true);
     }
 
-    private static final NamespaceID MINECRAFT_WALLS = NamespaceID.from("minecraft:walls");
-
     private static Block update(Block block, Point position, Instance instance) {
         boolean northNeighbor = instance.getBlock(position.blockX(), position.blockY(), position.blockZ() - 1).isSolid();
         boolean southNeighbor = instance.getBlock(position.blockX(), position.blockY(), position.blockZ() + 1).isSolid();
