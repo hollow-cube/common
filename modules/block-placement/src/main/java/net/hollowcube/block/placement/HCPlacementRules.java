@@ -21,7 +21,6 @@ public final class HCPlacementRules {
     // Candles (stacking)
     // Non-collding blocks to place inside player
     // Waterlogged state
-    // Bells
     // Banners (int rot)
     // Signs (int rot)
     // Doors (place upper door)
@@ -85,6 +84,10 @@ public final class HCPlacementRules {
 
     private static final EventBinding<BlockEvent> ANVIL_BINDING = EventBinding.filtered(EventFilter.BLOCK, HCPlacementRules::isAnvil)
             .map(PlayerBlockPlaceEvent.class, BlockPlaceMechanicAnvil::onPlace)
+            .build();
+
+    private static final EventBinding<BlockEvent> BELL_BINDING = EventBinding.filtered(EventFilter.BLOCK, block -> block.compare(Block.BELL))
+            .map(PlayerBlockPlaceEvent.class, BlockPlaceMechanicBell::onPlace)
             .build();
 
     private static final EventBinding<BlockEvent> HALF_BINDING = EventBinding.filtered(EventFilter.BLOCK, HCPlacementRules::hasHalf)
@@ -195,6 +198,8 @@ public final class HCPlacementRules {
         handler.register(GLOW_LICHEN_BINDING);
         handler.register(VINE_BINDING);
         handler.register(POINTED_DRIPSTONE_BINDING);
+        handler.register(ANVIL_BINDING);
+        handler.register(BELL_BINDING);
 
         for (short stateId = 0; stateId < Short.MAX_VALUE; stateId++) {
             Block block = Block.fromStateId(stateId);
