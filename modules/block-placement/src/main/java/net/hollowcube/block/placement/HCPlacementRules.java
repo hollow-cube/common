@@ -16,7 +16,6 @@ public final class HCPlacementRules {
     //TODO:
     // Twisting Vines
     // Weeping Vines
-    // Anvils (flip X/Z rotation)
     // Small Dripleaf (convert Y)
     // Big Dripleaf (convert Y)
     // Candles (stacking)
@@ -82,6 +81,10 @@ public final class HCPlacementRules {
 
     private static final EventBinding<BlockEvent> AXIS_BINDING = EventBinding.filtered(EventFilter.BLOCK, HCPlacementRules::hasAxis)
             .map(PlayerBlockPlaceEvent.class, BlockPlaceMechanicAxis::onPlace)
+            .build();
+
+    private static final EventBinding<BlockEvent> ANVIL_BINDING = EventBinding.filtered(EventFilter.BLOCK, HCPlacementRules::isAnvil)
+            .map(PlayerBlockPlaceEvent.class, BlockPlaceMechanicAnvil::onPlace)
             .build();
 
     private static final EventBinding<BlockEvent> HALF_BINDING = EventBinding.filtered(EventFilter.BLOCK, HCPlacementRules::hasHalf)
@@ -154,6 +157,10 @@ public final class HCPlacementRules {
 
     private static boolean hasAxis(Block block) {
         return block.getProperty("axis") != null;
+    }
+
+    private static boolean isAnvil(Block block) {
+        return block.compare(Block.ANVIL);
     }
 
     private static boolean hasHalf(Block block) {
