@@ -7,6 +7,9 @@ import net.minestom.server.entity.GameMode;
 import net.minestom.server.event.player.PlayerLoginEvent;
 import net.minestom.server.event.player.PlayerSpawnEvent;
 import net.minestom.server.instance.block.Block;
+import net.minestom.server.timer.TaskSchedule;
+
+import java.time.Duration;
 
 public class TestServer {
     public static void main(String[] args) {
@@ -24,6 +27,9 @@ public class TestServer {
         eventHandler.addListener(PlayerSpawnEvent.class, event -> {
             var player = event.getPlayer();
             player.setGameMode(GameMode.CREATIVE);
+            MinecraftServer.getSchedulerManager().scheduleTask(() -> {
+                player.sendMessage(player.getPosition().direction().toString());
+            }, TaskSchedule.duration(Duration.ofSeconds(5)), TaskSchedule.duration(Duration.ofSeconds(1)));
         });
 
         HCPlacementRules.init();

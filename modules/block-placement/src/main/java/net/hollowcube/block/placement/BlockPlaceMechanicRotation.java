@@ -107,7 +107,8 @@ public class BlockPlaceMechanicRotation {
             NamespaceID.from("minecraft:bee_nest"),
             NamespaceID.from("minecraft:piston")
     );
-    private static final Set<NamespaceID> USE_BLOCK_FACING = Set.of(
+    // TODO: I think there may be a tag that can be used instead of this
+    private static final Set<NamespaceID> USE_BLOCK_FACING = new HashSet<>(Set.of(
             NamespaceID.from("minecraft:glow_lichen"),
             NamespaceID.from("minecraft:cocoa"),
             NamespaceID.from("minecraft:dead_tube_coral_wall_fan"),
@@ -134,6 +135,6 @@ public class BlockPlaceMechanicRotation {
             NamespaceID.from("minecraft:player_wall_head"),
             NamespaceID.from("minecraft:creeper_wall_head"),
             NamespaceID.from("minecraft:dragon_wall_head")
-    );
+    ));
 
 }

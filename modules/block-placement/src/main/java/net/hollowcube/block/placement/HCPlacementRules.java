@@ -21,8 +21,6 @@ public final class HCPlacementRules {
     // Candles (stacking)
     // Non-collding blocks to place inside player
     // Waterlogged state
-    // Banners (int rot)
-    // Signs (int rot)
     // Sunflower (place upper sunflower)
     // Fern (place upper fern)
     // Beds (place 2nd block)
@@ -103,6 +101,11 @@ public final class HCPlacementRules {
                     .map(PlayerBlockPlaceEvent.class, BlockPlaceMechanicWallReplacement::onPlace)
                     .build();
 
+    private static final EventBinding<BlockEvent> ROTATION_16_BINDING =
+            EventBinding.filtered(EventFilter.BLOCK, HCPlacementRules::hasRotation16)
+                    .map(PlayerBlockPlaceEvent.class, BlockPlaceMechanicRotation16::onPlace)
+                    .build();
+
     /* Checks */
 
     public static final Tag MINECRAFT_STAIRS = Objects.requireNonNull(MinecraftServer.getTagManager().getTag(Tag.BasicType.BLOCKS, "minecraft:stairs"));
@@ -174,6 +177,8 @@ public final class HCPlacementRules {
         return block.getProperty("half") != null;
     }
 
+    private static boolean hasRotation16(Block block) { return block.getProperty("rotation") != null; }
+
     private static final Tag MINECRAFT_DOORS = Objects.requireNonNull(MinecraftServer.getTagManager().getTag(Tag.BasicType.BLOCKS, "minecraft:doors"));
 
     private static boolean isDoor(Block block) {
@@ -211,6 +216,7 @@ public final class HCPlacementRules {
         handler.register(ANVIL_BINDING);
         handler.register(BELL_BINDING);
         handler.register(DOOR_BINDING);
+        handler.register(ROTATION_16_BINDING);
 
         for (short stateId = 0; stateId < Short.MAX_VALUE; stateId++) {
             Block block = Block.fromStateId(stateId);
