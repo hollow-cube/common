@@ -23,7 +23,6 @@ public final class HCPlacementRules {
     // Waterlogged state
     // Banners (int rot)
     // Signs (int rot)
-    // Doors (place upper door)
     // Sunflower (place upper sunflower)
     // Fern (place upper fern)
     // Beds (place 2nd block)
@@ -89,6 +88,11 @@ public final class HCPlacementRules {
     private static final EventBinding<BlockEvent> BELL_BINDING = EventBinding.filtered(EventFilter.BLOCK, block -> block.compare(Block.BELL))
             .map(PlayerBlockPlaceEvent.class, BlockPlaceMechanicBell::onPlace)
             .build();
+
+    private static final EventBinding<BlockEvent> DOOR_BINDING = EventBinding.filtered(EventFilter.BLOCK, HCPlacementRules::isDoor)
+            .map(PlayerBlockPlaceEvent.class, BlockPlaceMechanicDoor::onPlace)
+            .build();
+
 
     private static final EventBinding<BlockEvent> HALF_BINDING = EventBinding.filtered(EventFilter.BLOCK, HCPlacementRules::hasHalf)
             .map(PlayerBlockPlaceEvent.class, BlockPlaceMechanicHalf::onPlace)
@@ -170,6 +174,12 @@ public final class HCPlacementRules {
         return block.getProperty("half") != null;
     }
 
+    private static final Tag MINECRAFT_DOORS = Objects.requireNonNull(MinecraftServer.getTagManager().getTag(Tag.BasicType.BLOCKS, "minecraft:doors"));
+
+    private static boolean isDoor(Block block) {
+        return MINECRAFT_DOORS.contains(block.namespace());
+    }
+
     /* Init */
 
     public static void init() {
@@ -200,6 +210,7 @@ public final class HCPlacementRules {
         handler.register(POINTED_DRIPSTONE_BINDING);
         handler.register(ANVIL_BINDING);
         handler.register(BELL_BINDING);
+        handler.register(DOOR_BINDING);
 
         for (short stateId = 0; stateId < Short.MAX_VALUE; stateId++) {
             Block block = Block.fromStateId(stateId);
