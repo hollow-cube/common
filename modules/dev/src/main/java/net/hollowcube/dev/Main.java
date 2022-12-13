@@ -10,7 +10,7 @@ import net.minestom.server.instance.InstanceContainer;
 import net.minestom.server.instance.InstanceManager;
 import net.minestom.server.instance.block.Block;
 
-import java.sql.*;
+import java.sql.SQLException;
 
 public class Main {
 
