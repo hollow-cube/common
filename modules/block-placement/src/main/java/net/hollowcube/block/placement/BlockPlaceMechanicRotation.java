@@ -93,7 +93,7 @@ public class BlockPlaceMechanicRotation {
     }
 
     private static final Set<Integer> ROTATION_VERTICAL = new HashSet<>();
-    private static Set<NamespaceID> ROTATION_INVERT = Set.of(
+    private static final Set<NamespaceID> ROTATION_INVERT = Set.of(
             NamespaceID.from("minecraft:barrel"),
             NamespaceID.from("minecraft:command_block"),
             NamespaceID.from("minecraft:repeating_command_block"),
@@ -107,7 +107,8 @@ public class BlockPlaceMechanicRotation {
             NamespaceID.from("minecraft:bee_nest"),
             NamespaceID.from("minecraft:piston")
     );
-    private static Set<NamespaceID> USE_BLOCK_FACING = new HashSet<>(Set.of(
+    // TODO: I think there may be a tag that can be used instead of this
+    private static final Set<NamespaceID> USE_BLOCK_FACING = new HashSet<>(Set.of(
             NamespaceID.from("minecraft:glow_lichen"),
             NamespaceID.from("minecraft:cocoa"),
             NamespaceID.from("minecraft:dead_tube_coral_wall_fan"),

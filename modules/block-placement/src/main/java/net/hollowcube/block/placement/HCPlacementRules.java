@@ -1,7 +1,9 @@
 package net.hollowcube.block.placement;
 
 import net.minestom.server.MinecraftServer;
-import net.minestom.server.event.*;
+import net.minestom.server.event.EventBinding;
+import net.minestom.server.event.EventFilter;
+import net.minestom.server.event.EventNode;
 import net.minestom.server.event.player.PlayerBlockPlaceEvent;
 import net.minestom.server.event.player.PlayerBlockUpdateNeighborEvent;
 import net.minestom.server.event.trait.BlockEvent;
@@ -16,16 +18,11 @@ public final class HCPlacementRules {
     //TODO:
     // Twisting Vines
     // Weeping Vines
-    // Anvils (flip X/Z rotation)
     // Small Dripleaf (convert Y)
     // Big Dripleaf (convert Y)
     // Candles (stacking)
     // Non-collding blocks to place inside player
     // Waterlogged state
-    // Bells
-    // Banners (int rot)
-    // Signs (int rot)
-    // Doors (place upper door)
     // Sunflower (place upper sunflower)
     // Fern (place upper fern)
     // Beds (place 2nd block)
@@ -84,6 +81,19 @@ public final class HCPlacementRules {
             .map(PlayerBlockPlaceEvent.class, BlockPlaceMechanicAxis::onPlace)
             .build();
 
+    private static final EventBinding<BlockEvent> ANVIL_BINDING = EventBinding.filtered(EventFilter.BLOCK, HCPlacementRules::isAnvil)
+            .map(PlayerBlockPlaceEvent.class, BlockPlaceMechanicAnvil::onPlace)
+            .build();
+
+    private static final EventBinding<BlockEvent> BELL_BINDING = EventBinding.filtered(EventFilter.BLOCK, block -> block.compare(Block.BELL))
+            .map(PlayerBlockPlaceEvent.class, BlockPlaceMechanicBell::onPlace)
+            .build();
+
+    private static final EventBinding<BlockEvent> DOOR_BINDING = EventBinding.filtered(EventFilter.BLOCK, HCPlacementRules::isDoor)
+            .map(PlayerBlockPlaceEvent.class, BlockPlaceMechanicDoor::onPlace)
+            .build();
+
+
     private static final EventBinding<BlockEvent> HALF_BINDING = EventBinding.filtered(EventFilter.BLOCK, HCPlacementRules::hasHalf)
             .map(PlayerBlockPlaceEvent.class, BlockPlaceMechanicHalf::onPlace)
             .build();
@@ -91,6 +101,11 @@ public final class HCPlacementRules {
     private static final EventBinding<BlockEvent> WALL_REPLACEMENT_BINDING =
             EventBinding.filtered(EventFilter.BLOCK, BlockPlaceMechanicWallReplacement::shouldReplace)
                     .map(PlayerBlockPlaceEvent.class, BlockPlaceMechanicWallReplacement::onPlace)
+                    .build();
+
+    private static final EventBinding<BlockEvent> ROTATION_16_BINDING =
+            EventBinding.filtered(EventFilter.BLOCK, HCPlacementRules::hasRotation16)
+                    .map(PlayerBlockPlaceEvent.class, BlockPlaceMechanicRotation16::onPlace)
                     .build();
 
     /* Checks */
@@ -156,8 +171,20 @@ public final class HCPlacementRules {
         return block.getProperty("axis") != null;
     }
 
+    private static boolean isAnvil(Block block) {
+        return block.compare(Block.ANVIL);
+    }
+
     private static boolean hasHalf(Block block) {
         return block.getProperty("half") != null;
+    }
+
+    private static boolean hasRotation16(Block block) { return block.getProperty("rotation") != null; }
+
+    private static final Tag MINECRAFT_DOORS = Objects.requireNonNull(MinecraftServer.getTagManager().getTag(Tag.BasicType.BLOCKS, "minecraft:doors"));
+
+    private static boolean isDoor(Block block) {
+        return MINECRAFT_DOORS.contains(block.namespace());
     }
 
     /* Init */
@@ -188,6 +215,10 @@ public final class HCPlacementRules {
         handler.register(GLOW_LICHEN_BINDING);
         handler.register(VINE_BINDING);
         handler.register(POINTED_DRIPSTONE_BINDING);
+        handler.register(ANVIL_BINDING);
+        handler.register(BELL_BINDING);
+        handler.register(DOOR_BINDING);
+        handler.register(ROTATION_16_BINDING);
 
         for (short stateId = 0; stateId < Short.MAX_VALUE; stateId++) {
             Block block = Block.fromStateId(stateId);
