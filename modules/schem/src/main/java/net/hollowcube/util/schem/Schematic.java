@@ -2,6 +2,8 @@ package net.hollowcube.util.schem;
 
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Vec;
+import net.minestom.server.instance.Chunk;
+import net.minestom.server.instance.Instance;
 import net.minestom.server.instance.batch.BatchOption;
 import net.minestom.server.instance.batch.RelativeBlockBatch;
 import net.minestom.server.instance.block.Block;
@@ -10,8 +12,10 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
@@ -48,6 +52,37 @@ public record Schematic(
 
     public Point offset(Rotation rotation) {
         return rotatePos(offset, rotation);
+    }
+
+    public @NotNull RelativeBlockBatch applyToInstance(@NotNull Instance instance, @NotNull Point startPoint, boolean loadChunks, @NotNull Rotation rotation, @Nullable Function<Block, Block> blockModifier) {
+        RelativeBlockBatch batch = build(rotation, blockModifier);
+        if (loadChunks) {
+            Point min = startPoint.add(offset());
+            Point max = min.add(size());
+            int chunkXStart = min.chunkX();
+            int chunkXSize = max.chunkX() - min.chunkX() + 1;
+            int chunkZStart = min.chunkZ();
+            int chunkZSize = max.chunkZ() - min.chunkZ() + 1;
+            ArrayList<CompletableFuture<Chunk>> chunksToLoad = new ArrayList<>();
+            for (int i = chunkXStart; i < chunkXStart + chunkXSize; i++) {
+                for (int j = chunkZStart; j < chunkZStart + chunkZSize; j++) {
+                    chunksToLoad.add(instance.loadOptionalChunk(i, j));
+                }
+            }
+            CompletableFuture.allOf(chunksToLoad.toArray(new CompletableFuture[0])).thenRun(() -> batch.apply(instance, startPoint, null)).thenRun(() -> {
+                for (int i = chunkXStart; i < chunkXStart + chunkXSize; i++) {
+                    for (int j = chunkZStart; j < chunkZStart + chunkZSize; j++) {
+                        Chunk chunk = instance.getChunk(i, j);
+                        if(chunk != null && chunk.isLoaded() && chunk.getViewers().isEmpty()) {
+                            instance.unloadChunk(chunk);
+                        }
+                    }
+                }
+            });
+        } else {
+            batch.apply(instance, startPoint, null);
+        }
+        return batch;
     }
 
     /**
