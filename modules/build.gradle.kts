@@ -23,7 +23,7 @@ subprojects {
         val testAnnotationProcessor by configurations
         val errorprone by configurations
 
-        errorprone("com.google.errorprone:error_prone_core:2.17.0")
+        errorprone("com.google.errorprone:error_prone_core:2.16.0")
         errorprone("com.uber.nullaway:nullaway:0.10.6")
 
         // Auto service (SPI)
