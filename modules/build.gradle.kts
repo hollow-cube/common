@@ -23,8 +23,8 @@ subprojects {
         val testAnnotationProcessor by configurations
         val errorprone by configurations
 
-        errorprone("com.google.errorprone:error_prone_core:2.14.0")
-        errorprone("com.uber.nullaway:nullaway:0.9.8")
+        errorprone("com.google.errorprone:error_prone_core:2.17.0")
+        errorprone("com.uber.nullaway:nullaway:0.10.6")
 
         // Auto service (SPI)
         annotationProcessor("com.google.auto.service:auto-service:1.0.1")
