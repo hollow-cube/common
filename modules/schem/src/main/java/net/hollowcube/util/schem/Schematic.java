@@ -54,7 +54,7 @@ public record Schematic(
         return rotatePos(offset, rotation);
     }
 
-    public @NotNull RelativeBlockBatch applyToInstance(@NotNull Instance instance, @NotNull Point startPoint, boolean loadChunks, @NotNull Rotation rotation, @Nullable Function<Block, Block> blockModifier) {
+    public @NotNull CompletableFuture<Void> applyToInstance(@NotNull Instance instance, @NotNull Point startPoint, boolean loadChunks, @NotNull Rotation rotation, @Nullable Function<Block, Block> blockModifier) {
         RelativeBlockBatch batch = build(rotation, blockModifier);
         if (loadChunks) {
             Point min = startPoint.add(offset());
@@ -69,7 +69,7 @@ public record Schematic(
                     chunksToLoad.add(instance.loadOptionalChunk(i, j));
                 }
             }
-            CompletableFuture.allOf(chunksToLoad.toArray(new CompletableFuture[0])).thenRun(() -> batch.apply(instance, startPoint, null)).thenRun(() -> {
+            return CompletableFuture.allOf(chunksToLoad.toArray(new CompletableFuture[0])).thenRun(() -> batch.apply(instance, startPoint, null)).thenRun(() -> {
                 for (int i = chunkXStart; i < chunkXStart + chunkXSize; i++) {
                     for (int j = chunkZStart; j < chunkZStart + chunkZSize; j++) {
                         Chunk chunk = instance.getChunk(i, j);
@@ -80,9 +80,8 @@ public record Schematic(
                 }
             });
         } else {
-            batch.apply(instance, startPoint, null);
+            return CompletableFuture.runAsync(() -> batch.apply(instance, startPoint, null));
         }
-        return batch;
     }
 
     /**
