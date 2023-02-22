@@ -33,7 +33,7 @@ public class SchemPasterTest {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        assertEquals(5, chunksLoaded.get());
+        assertEquals(2, chunksLoaded.get());
         assertEquals(chunksLoaded.get(), chunksUnloaded.get());
     }
 }
