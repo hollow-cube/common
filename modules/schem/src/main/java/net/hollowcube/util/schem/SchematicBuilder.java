@@ -4,6 +4,8 @@ import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Vec;
 import net.minestom.server.instance.block.Block;
 import net.minestom.server.utils.Utils;
+import net.minestom.server.utils.block.BlockUtils;
+import net.minestom.server.utils.position.PositionUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.ByteBuffer;
@@ -17,9 +19,8 @@ public class SchematicBuilder {
 
     private Point offset = Vec.ZERO;
 
-
     public void addBlock(@NotNull Point point, @NotNull Block block) {
-        blockSet.put(point, block);
+        blockSet.put(new Vec(point.blockX(), point.blockY(), point.blockZ()), block);
     }
 
     public void setOffset(@NotNull Point point) {
@@ -69,38 +70,31 @@ public class SchematicBuilder {
             paletteMap.put(Block.AIR, 0);
         }
 
-        // This is horribly memory and space inefficient, but I cannot think of a better way of doing this right now
         ByteBuffer blockBytes = ByteBuffer.allocate(1024);
-        Set<Point> pointSet = blockSet.keySet();
         for (int x = xMin; x <= xMax; x++) {
             for (int y = yMin; y <= yMax; y++) {
                 for (int z = zMin; z <= zMax; z++) {
-                    // Should be okay, since this is a short
-                    // Also matt said so
                     if (blockBytes.remaining() <= 3) {
                         byte[] oldBytes = blockBytes.array();
                         blockBytes = ByteBuffer.allocate(blockBytes.capacity() * 2);
                         blockBytes.put(oldBytes);
                     }
-                    boolean foundPoint = false;
-                    for (Point point : pointSet) {
-                        if(point.blockX() == x && point.blockY() == y && point.blockZ() == z) {
-                            Block block = blockSet.get(point);
-                            int blockId;
-                            if (!paletteMap.containsKey(block)) {
-                                blockId = paletteMap.size();
-                                paletteMap.put(block, paletteMap.size());
-                            } else {
-                                blockId = paletteMap.get(block);
-                            }
-                            foundPoint = true;
-                            Utils.writeVarInt(blockBytes, blockId);
-                            break;
-                        }
-                    }
-                    if(!foundPoint) {
+
+                    var block = blockSet.get(new Vec(x, y, z));
+                    if (block == null) {
+                        // Block not set, write an air value
                         Utils.writeVarInt(blockBytes, 0);
+                        continue;
                     }
+
+                    int blockId;
+                    if (!paletteMap.containsKey(block)) {
+                        blockId = paletteMap.size();
+                        paletteMap.put(block, paletteMap.size());
+                    } else {
+                        blockId = paletteMap.get(block);
+                    }
+                    Utils.writeVarInt(blockBytes, blockId);
                 }
             }
         }

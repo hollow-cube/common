@@ -1,12 +1,12 @@
-import net.hollowcube.util.schem.Schematic;
-import net.hollowcube.util.schem.SchematicBuilder;
+package net.hollowcube.util.schem;
+
 import net.minestom.server.coordinate.Vec;
 import net.minestom.server.instance.block.Block;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class SchemBuilderTest {
+public class TestSchematicBuilder {
 
     @Test
     public void testSchematicBuild() {
