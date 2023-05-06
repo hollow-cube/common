@@ -4,34 +4,40 @@ import net.minestom.server.command.builder.arguments.minecraft.ArgumentBlockStat
 import net.minestom.server.coordinate.Vec;
 import net.minestom.server.instance.block.Block;
 import net.minestom.server.utils.validate.Check;
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jglrxavpok.hephaistos.collections.ImmutableByteArray;
-import org.jglrxavpok.hephaistos.nbt.*;
+import org.jglrxavpok.hephaistos.nbt.CompressedProcesser;
+import org.jglrxavpok.hephaistos.nbt.NBTCompound;
+import org.jglrxavpok.hephaistos.nbt.NBTInt;
+import org.jglrxavpok.hephaistos.nbt.NBTReader;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 
 /**
  * Simple schematic file reader.
  */
-public class SchematicReader {
+public final class SchematicReader {
 
-    public static @NotNull Schematic read(@NotNull InputStream stream) throws IOException {
+    private SchematicReader() {}
+
+    public static @NotNull Schematic read(@NotNull InputStream stream) {
         try (var reader = new NBTReader(stream, CompressedProcesser.GZIP)) {
             return read(reader);
+        } catch (Exception e) {
+            throw new SchematicReadException("failed to read schematic NBT", e);
         }
     }
 
-    public static @NotNull Schematic read(@NotNull Path path) throws IOException {
+    public static @NotNull Schematic read(@NotNull Path path) {
         try (var reader = new NBTReader(path, CompressedProcesser.GZIP)) {
             return read(reader);
+        } catch (Exception e) {
+            throw new SchematicReadException("failed to read schematic NBT", e);
         }
     }
 
-    @ApiStatus.Internal
-    public static @NotNull Schematic read(@NotNull NBTReader reader) throws IOException {
+    public static @NotNull Schematic read(@NotNull NBTReader reader) {
         try {
             NBTCompound tag = (NBTCompound) reader.read();
 
@@ -75,8 +81,8 @@ public class SchematicReader {
                     paletteBlocks,
                     blockArray.copyArray()
             );
-        } catch (NullPointerException | NBTException e) {
-            throw new RuntimeException("Invalid schematic file", e);
+        } catch (Exception e) {
+            throw new SchematicReadException("Invalid schematic file", e);
         }
     }
 
