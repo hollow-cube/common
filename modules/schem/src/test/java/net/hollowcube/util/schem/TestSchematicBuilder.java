@@ -6,10 +6,10 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class TestSchematicBuilder {
+class TestSchematicBuilder {
 
     @Test
-    public void testSchematicBuild() {
+    void testSchematicBuild() {
         SchematicBuilder builder = new SchematicBuilder();
 
         builder.addBlock(new Vec(5, 2, 5), Block.STONE);
@@ -19,15 +19,15 @@ public class TestSchematicBuilder {
         builder.addBlock(new Vec(4, 3, 5), Block.DIORITE);
         builder.addBlock(new Vec(4, 4, 5), Block.DIORITE);
 
-        Schematic result = builder.toSchematic();
+        Schematic result = builder.build();
         // Since we should have perfect encapsulation in the schematic because it is rectangular, we shouldn't have any air entries
         assertEquals(2, result.palette().length);
-        assertEquals(Vec.ZERO, result.offset());
+        assertEquals(new Vec(4, 2, 5), result.offset());
 
         builder.addBlock(new Vec(3, 2, 5), Block.COAL_BLOCK);
 
         // Should have air and coal in the schematic now
-        result = builder.toSchematic();
+        result = builder.build();
         assertEquals(4, result.palette().length);
     }
 }

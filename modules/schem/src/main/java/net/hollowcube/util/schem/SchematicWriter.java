@@ -6,12 +6,14 @@ import org.jetbrains.annotations.NotNull;
 import org.jglrxavpok.hephaistos.nbt.NBTWriter;
 import org.jglrxavpok.hephaistos.nbt.mutable.MutableNBTCompound;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class SchematicWriter {
 
-    public static void write(@NotNull Schematic schematic, @NotNull Path schemPath) throws IOException {
+    public static @NotNull byte[] write(@NotNull Schematic schematic) {
         MutableNBTCompound schematicNBT = new MutableNBTCompound();
         Point size = schematic.size();
         schematicNBT.setShort("Width", (short) size.x());
@@ -37,8 +39,18 @@ public class SchematicWriter {
         }
         schematicNBT.set("Palette", palette.toCompound());
 
-        try (NBTWriter writer = new NBTWriter(schemPath)) {
+        var out = new ByteArrayOutputStream();
+        try (NBTWriter writer = new NBTWriter(out)) {
             writer.writeRaw(schematicNBT.toCompound());
+        } catch (IOException e) {
+            // No exceptions when writing to a byte array
+            throw new RuntimeException(e);
         }
+
+        return out.toByteArray();
+    }
+
+    public static void write(@NotNull Schematic schematic, @NotNull Path schemPath) throws IOException {
+        Files.write(schemPath, write(schematic));
     }
 }
