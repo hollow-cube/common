@@ -3,10 +3,10 @@ name: Sonar Analysis
 on:
   push:
     branches:
-      - main
+      - main_disabled
     pull_request:
         branches:
-            - main
+            - main_disabled
 
 
 jobs:
