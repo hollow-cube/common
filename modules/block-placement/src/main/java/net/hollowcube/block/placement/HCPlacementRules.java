@@ -19,7 +19,6 @@ public final class HCPlacementRules {
     // Anvils (flip X/Z rotation)
     // Small Dripleaf (convert Y)
     // Big Dripleaf (convert Y)
-    // Candles (stacking)
     // Non-collding blocks to place inside player
     // Waterlogged state
     // Bells
@@ -93,6 +92,11 @@ public final class HCPlacementRules {
                     .map(PlayerBlockPlaceEvent.class, BlockPlaceMechanicWallReplacement::onPlace)
                     .build();
 
+    private static final EventBinding<BlockEvent> CANDLE_BINDING =
+            EventBinding.filtered(EventFilter.BLOCK, HCPlacementRules::isCandle)
+                    .map(PlayerBlockPlaceEvent.class, BlockPlaceMechanicCandle::onPlace)
+                    .build();
+
     /* Checks */
 
     public static final Tag MINECRAFT_STAIRS = Objects.requireNonNull(MinecraftServer.getTagManager().getTag(Tag.BasicType.BLOCKS, "minecraft:stairs"));
@@ -160,6 +164,12 @@ public final class HCPlacementRules {
         return block.getProperty("half") != null;
     }
 
+    public static final Tag MINECRAFT_CANDLES = Objects.requireNonNull(MinecraftServer.getTagManager().getTag(Tag.BasicType.BLOCKS, "minecraft:candles"));
+
+    private static boolean isCandle(Block block) {
+        return MINECRAFT_CANDLES.contains(block.namespace());
+    }
+
     /* Init */
 
     public static void init() {
@@ -188,6 +198,7 @@ public final class HCPlacementRules {
         handler.register(GLOW_LICHEN_BINDING);
         handler.register(VINE_BINDING);
         handler.register(POINTED_DRIPSTONE_BINDING);
+        handler.register(CANDLE_BINDING);
 
         for (short stateId = 0; stateId < Short.MAX_VALUE; stateId++) {
             Block block = Block.fromStateId(stateId);
