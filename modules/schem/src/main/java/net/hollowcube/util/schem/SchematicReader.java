@@ -68,10 +68,9 @@ public final class SchematicReader {
 
             Block[] paletteBlocks = new Block[paletteSize];
 
-            ArgumentBlockState state = new ArgumentBlockState("");
             palette.forEach((key, value) -> {
                 int assigned = ((NBTInt) value).getValue();
-                Block block = state.parse(key);
+                Block block = ArgumentBlockState.staticParse(key);
                 paletteBlocks[assigned] = block;
             });
 
