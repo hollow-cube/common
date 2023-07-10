@@ -5,7 +5,6 @@ import net.minestom.server.event.player.PlayerBlockPlaceEvent;
 import net.minestom.server.event.player.PlayerBlockUpdateNeighborEvent;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.instance.block.Block;
-import net.minestom.server.utils.NamespaceID;
 
 public class BlockPlaceMechanicWall {
 
