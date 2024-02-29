@@ -1,3 +1,8 @@
+> [!IMPORTANT]  
+> This repository is not being updated and should not be used going forward.
+>
+> This module has been moved to its own repository [here](https://github.com/hollow-cube/mql).
+
 # Minecraft Query Language (mql)
 
 A subset of MoLang (may eventually be a full implementation). Available as an interpreter or a JIT compiled mode.

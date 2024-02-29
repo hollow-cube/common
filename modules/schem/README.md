@@ -1,3 +1,8 @@
+> [!IMPORTANT]  
+> This repository is not being updated and should not be used going forward.
+>
+> This module has been moved to its own repository [here](https://github.com/hollow-cube/schem).
+
 # Schematic Loader
 
 A simple schematic file loader.
