@@ -39,6 +39,21 @@ public class TestMql {
     }
 
     @Test
+    public void testDot() {
+        var source = ".1 + 10 + 10 + .3";
+
+        var expr = new MqlParser(source).parse();
+        var scopeImpl = new MqlScopeImpl();
+        var vars = new MqlScopeImpl.Mutable();
+
+        var scope = new MqlScriptScope(scopeImpl, vars, scopeImpl);
+        var result = expr.evaluate(scope);
+
+        assertTrue(result instanceof MqlNumberValue);
+        assertEquals(20.4, ((MqlNumberValue) result).value(), 0.0001);
+    }
+
+    @Test
     public void testAdd() {
         var source = "10 + 10 + 10";
 
