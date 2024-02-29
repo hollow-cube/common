@@ -7,6 +7,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
+import static net.hollowcube.mql.parser.MqlToken.Type.NUMBER;
+
 public class MqlParser {
     private final MqlLexer lexer;
 
@@ -89,6 +91,12 @@ public class MqlParser {
         if (token == null) throw new MqlParseError("unexpected end of input");
 
         return switch (token.type()) {
+            case DOT -> {
+                var next = lexer.next();
+                if (next == null) throw new MqlParseError("unexpected end of input");
+                if (next.type() != NUMBER) throw new MqlParseError("expected number after .");
+                yield new MqlNumberExpr(Double.parseDouble("0." + lexer.span(next)));
+            }
             case NUMBER -> new MqlNumberExpr(Double.parseDouble(lexer.span(token)));
             case IDENT -> new MqlIdentExpr(lexer.span(token));
             case MINUS -> {
